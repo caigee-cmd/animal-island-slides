@@ -11,11 +11,9 @@
 
 ## Demo / 演示
 
-<!-- TODO: 补 3 张成品截图（封面 / 卡片栅格 / 时间线） + 1 段 GIF -->
-
 | Cover | Card Grid | Timeline |
 | :---: | :---: | :---: |
-| _coming soon_ | _coming soon_ | _coming soon_ |
+| ![Cover layout](docs/screenshots/cover.png) | ![Card grid layout](docs/screenshots/grid.png) | ![Timeline layout](docs/screenshots/timeline.png) |
 
 ---
 
