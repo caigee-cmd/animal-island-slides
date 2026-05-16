@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Python (from extract-pptx.py runs)
+__pycache__/
+*.pyc
+*.pyo
+
+# Local test outputs (generated decks)
+*.html
+extracted-slides.json
+assets/
+_assets/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Allow plugin-internal docs and templates (override above if matched)
+!skills/**/*.md
+!docs/**/*.html

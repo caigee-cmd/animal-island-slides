@@ -1,0 +1,34 @@
+{
+  "name": "animal-island-slides",
+  "owner": {
+    "name": "caigee-cmd",
+    "url": "https://github.com/caigee-cmd"
+  },
+  "plugins": [
+    {
+      "name": "animal-island-slides",
+      "source": "./",
+      "description": "Generate zero-dependency HTML presentations in Animal Crossing — New Horizons style, or convert .pptx files into the same look.",
+      "version": "0.1.0",
+      "author": {
+        "name": "caigee-cmd",
+        "url": "https://github.com/caigee-cmd"
+      },
+      "homepage": "https://github.com/caigee-cmd/animal-island-slides",
+      "repository": "https://github.com/caigee-cmd/animal-island-slides",
+      "license": "MIT",
+      "category": "design",
+      "keywords": [
+        "slides",
+        "presentation",
+        "pptx",
+        "animal-crossing",
+        "html",
+        "single-file",
+        "zero-dependency",
+        "skill"
+      ],
+      "strict": false
+    }
+  ]
+}
