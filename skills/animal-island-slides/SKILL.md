@@ -104,8 +104,20 @@ description: 用动物森友会风格生成零依赖 HTML 演示文稿，或将 
 | 渐进披露 / 步骤详解 / 复盘清单 / 深度问题（默认折叠，点击展开） | Collapse Stack |
 | 功能开关清单 / 特性对比 / 规格表 / "选择你的路线"（带控件状态） | Settings Panel |
 
-用 AskUserQuestion 展示大纲并确认：
-- 选项：看起来不错，开始生成 / 调整大纲
+**季节子主题选择**（可选）：
+
+根据内容主题推断是否套用季节子主题（自动叠加色板覆盖 + 飘落装饰）：
+
+| 用户语境关键词 | 推断主题 |
+|---|---|
+| 春 / 樱花 / 三月发布 / 春季焕新 / 年初规划 | spring |
+| 夏 / 海岛 / 暑期 / 活力主题 / 发布会 | summer |
+| 秋 / 枫叶 / 复盘 / 年中总结 / 十/十一月 | autumn |
+| 冬 / 年终 / 年会 / 圣诞 / 雪 / 12 月 / 1 月 | winter |
+| 与季节无关、或拿不准 | 不选（默认羊皮纸 + 岛屿绿） |
+
+用 AskUserQuestion 同时展示大纲和推断主题，让用户确认或更换：
+- 选项：看起来不错，开始生成 / 调整大纲 / 换一个季节主题 / 不要季节装饰
 
 用户确认后进入 Phase 3。
 
@@ -120,6 +132,7 @@ description: 用动物森友会风格生成零依赖 HTML 演示文稿，或将 
 3. 所有 `data-slide="N"` 从 0 开始顺序编号
 4. 第一张幻灯片加 `class="slide ... active"`，其余只有 `class="slide ..."`
 5. **如果用到 Layout S / W / T**：把 html-template.md 中"交互脚本钩子"section 的全部 JS 追加到 BASE 的 `<script>` 块末尾（Tabs / Collapse / Settings 三段都是命中 0 元素就 no-op 的安全代码，遇到不确定就全部加上）
+   **如果开启季节子主题**（spring/summer/autumn/winter）：在 `<body>` 标签上加 `data-theme="..."`；把 html-template.md "季节子主题" section 的**通用容器 CSS** + **对应季节 CSS** 一起追加到 BASE `<style>` 末尾；把对应季节的 HTML 装饰块插入到 `<div class="deck">` 之后（与导航箭头同级）
    **如果开启 Time HUD / AC Cursor / Divider 氛围工具**：见 html-template.md "氛围工具"section，按需把 CSS/HTML/JS 片段加进 BASE
 6. 将文件保存为 `[演示文稿名称].html`，路径在当前工作目录
 

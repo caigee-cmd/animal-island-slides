@@ -3562,3 +3562,320 @@ document.querySelectorAll('.ac-segmented').forEach(seg => {
 | 手柄 / 游戏 | `<rect x="2" y="7" width="20" height="13" rx="4"/><path d="M7 12h4M9 10v4"/><circle cx="16" cy="12" r="1" fill="#fff"/><circle cx="19" cy="12" r="1" fill="#fff"/>` |
 | 图表 / 数据 | `<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>` |
 | 用户 / 团队 | `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>` |
+
+---
+
+## 季节子主题（Seasonal Themes — 可叠加在任意布局上）
+
+**何时使用**：用户提到春/樱花/三月发布 → spring；夏/海岛/暑期/活力 → summer；秋/枫叶/复盘/收获 → autumn；冬/年终/年会/圣诞/雪 → winter。也可不选，保持默认羊皮纸 + 岛屿绿（年中通用）。
+
+**如何启用**（三步）：
+1. 在 `<body>` 加 `data-theme="spring|summer|autumn|winter"`
+2. 将通用容器 CSS + 对应季节的 CSS 追加到 BASE `<style>` 末尾
+3. 将对应季节的 HTML 装饰块插入到 `<div class="deck">` 之后（与导航箭头同级）
+
+> 所有飘落 / 漂浮装饰自动遵守 `prefers-reduced-motion: reduce`，关闭动画后只保留半透明静止图。
+
+### 通用容器（4 季共用，先加一次）
+
+```css
+/* 追加到 BASE <style> 末尾 */
+.season-decor { pointer-events: none; }
+.season-decor > * {
+  position: fixed; pointer-events: none;
+  z-index: 2; will-change: transform, opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .season-decor > * { animation: none !important; opacity: 0.4; }
+}
+```
+
+---
+
+### 春樱 SPRING — 樱花飘落
+
+```css
+[data-theme="spring"] {
+  --bg-parchment:  #fef5f0;
+  --bg-card:       rgb(252, 244, 240);
+  --bg-mint-light: #ffe6ec;
+
+  --text-primary:   #6d3f4a;
+  --text-body:      #7e4f5c;
+  --text-secondary: #a78491;
+  --text-muted:     #b59ba5;
+
+  --accent-teal:    #ec9bb6;
+  --accent-teal-a:  #d57f9c;
+  --accent-yellow:  #f5c331;
+  --accent-yellow-d:#daa820;
+  --green:          #88c999;
+
+  --border-std:   2px solid #c9a8b3;
+  --shadow-btn:   0 5px 0 0 #c9a8b3;
+  --shadow-btn-h: 0 6px 0 0 #c9a8b3;
+  --shadow-btn-a: 0 1px 0 0 #c9a8b3;
+  --shadow-card:  0 4px 10px rgba(140, 80, 100, 0.28);
+}
+
+/* 樱花瓣（8 片，渐次飘落）*/
+[data-theme="spring"] .petal {
+  top: -30px; width: 14px; height: 14px;
+  background: radial-gradient(circle at 30% 30%, #ffd0dc 0%, #ec9bb6 70%);
+  border-radius: 100% 0 100% 0;
+  opacity: 0.55;
+  animation: petalFall linear infinite;
+}
+[data-theme="spring"] .petal:nth-child(1) { left:  6%; --s: 1;    animation-duration: 12s;   animation-delay: -2s;  }
+[data-theme="spring"] .petal:nth-child(2) { left: 18%; --s: 0.85; animation-duration: 14s;   animation-delay: -5s;  }
+[data-theme="spring"] .petal:nth-child(3) { left: 32%; --s: 1.15; animation-duration: 11s;   animation-delay: -8s;  }
+[data-theme="spring"] .petal:nth-child(4) { left: 47%; --s: 0.75; animation-duration: 13s;   animation-delay: -1s;  }
+[data-theme="spring"] .petal:nth-child(5) { left: 60%; --s: 1;    animation-duration: 15s;   animation-delay: -10s; }
+[data-theme="spring"] .petal:nth-child(6) { left: 73%; --s: 0.9;  animation-duration: 12.5s; animation-delay: -6s;  }
+[data-theme="spring"] .petal:nth-child(7) { left: 86%; --s: 1.05; animation-duration: 13.5s; animation-delay: -3s;  }
+[data-theme="spring"] .petal:nth-child(8) { left: 94%; --s: 0.7;  animation-duration: 16s;   animation-delay: -9s;  }
+
+@keyframes petalFall {
+  0%   { transform: translate(0, -10vh)  rotate(0deg)   scale(var(--s,1)); opacity: 0; }
+  10%  { opacity: 0.65; }
+  90%  { opacity: 0.5; }
+  100% { transform: translate(80px, 110vh) rotate(540deg) scale(var(--s,1)); opacity: 0; }
+}
+```
+
+```html
+<!-- 紧贴 <div class="deck"> 之后 -->
+<div class="season-decor" aria-hidden="true">
+  <span class="petal"></span><span class="petal"></span>
+  <span class="petal"></span><span class="petal"></span>
+  <span class="petal"></span><span class="petal"></span>
+  <span class="petal"></span><span class="petal"></span>
+</div>
+```
+
+---
+
+### 夏海 SUMMER — 海浪与海鸥
+
+> 颜色微调（更冷的沙滩米 + 更亮的太阳黄），主要靠装饰营造海岛氛围。
+
+```css
+[data-theme="summer"] {
+  --bg-parchment:  #f0f4e8;
+  --bg-card:       rgb(245, 248, 232);
+  --bg-mint-light: #d6f0eb;
+
+  --text-primary:   #2a5260;
+  --text-body:      #3a657a;
+  --text-secondary: #6b8b95;
+  --text-muted:     #82a0a8;
+
+  --accent-teal:    #19c8b9;
+  --accent-teal-a:  #11a89b;
+  --accent-yellow:  #ffd166;
+  --accent-yellow-d:#e8b850;
+  --green:          #6fba2c;
+
+  --border-std:   2px solid #95b0a8;
+  --shadow-btn:   0 5px 0 0 #95b0a8;
+  --shadow-btn-h: 0 6px 0 0 #95b0a8;
+  --shadow-btn-a: 0 1px 0 0 #95b0a8;
+  --shadow-card:  0 4px 10px rgba(50, 90, 110, 0.22);
+}
+
+/* 底部海浪（持续右移）*/
+[data-theme="summer"] .ocean-wave {
+  left: 0; right: 0; bottom: -10px;
+  height: 90px;
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'><path d='M0,50 C240,90 480,10 720,50 C960,90 1200,10 1440,50 L1440,100 L0,100 Z' fill='%2319c8b9' opacity='0.18'/></svg>") repeat-x;
+  background-size: 1440px 90px;
+  animation: waveDrift 18s linear infinite;
+  opacity: 0.9;
+}
+@keyframes waveDrift { to { background-position: -1440px 0; } }
+
+/* 海鸥（2 只，缓慢横飞）*/
+[data-theme="summer"] .seagull {
+  width: 28px; height: 14px; color: rgba(45, 60, 75, 0.42);
+  animation-timing-function: linear; animation-iteration-count: infinite;
+}
+[data-theme="summer"] .seagull svg { width: 100%; height: 100%; }
+[data-theme="summer"] .seagull-1 { top: 16%; left: -6%; --s: 1;    animation-name: seagullFly; animation-duration: 26s; animation-delay: -3s;  }
+[data-theme="summer"] .seagull-2 { top: 24%; left: -6%; --s: 0.75; animation-name: seagullFly; animation-duration: 32s; animation-delay: -14s; }
+
+@keyframes seagullFly {
+  0%   { transform: translate(0, 0)        scale(var(--s,1)); }
+  50%  { transform: translate(50vw, -18px) scale(var(--s,1)); }
+  100% { transform: translate(110vw, 0)    scale(var(--s,1)); }
+}
+```
+
+```html
+<div class="season-decor" aria-hidden="true">
+  <div class="ocean-wave"></div>
+  <div class="seagull seagull-1">
+    <svg viewBox="0 0 28 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M2,11 Q7,2 12,8 Q18,2 26,11"/>
+    </svg>
+  </div>
+  <div class="seagull seagull-2">
+    <svg viewBox="0 0 28 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M2,11 Q7,2 12,8 Q18,2 26,11"/>
+    </svg>
+  </div>
+</div>
+```
+
+---
+
+### 秋收 AUTUMN — 枫叶飘落
+
+```css
+[data-theme="autumn"] {
+  --bg-parchment:  #f5ecd6;
+  --bg-card:       rgb(247, 240, 220);
+  --bg-mint-light: #ffe8c4;
+
+  --text-primary:   #5a2b1a;
+  --text-body:      #6e3f2a;
+  --text-secondary: #9a7654;
+  --text-muted:     #a98a6a;
+
+  --accent-teal:    #d97734;
+  --accent-teal-a:  #b85f25;
+  --accent-yellow:  #e8b04c;
+  --accent-yellow-d:#c89438;
+  --green:          #8a9a3b;
+
+  --border-std:   2px solid #b89a72;
+  --shadow-btn:   0 5px 0 0 #b89a72;
+  --shadow-btn-h: 0 6px 0 0 #b89a72;
+  --shadow-btn-a: 0 1px 0 0 #b89a72;
+  --shadow-card:  0 4px 10px rgba(120, 60, 30, 0.32);
+}
+
+/* 枫叶（8 片，4 色循环，旋转下落）*/
+[data-theme="autumn"] .leaf {
+  top: -30px; width: 18px; height: 18px;
+  background-repeat: no-repeat; background-position: center; background-size: contain;
+  opacity: 0.65;
+  animation: leafFall linear infinite;
+}
+[data-theme="autumn"] .leaf-orange { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 1.5L13.6 5.5L18 4.5L16 9L21 10.5L16.5 13L19.5 17L14 16L13.5 21L12 18L10.5 21L10 16L4.5 17L7.5 13L3 10.5L8 9L6 4.5L10.4 5.5L12 1.5Z' fill='%23d97734'/></svg>"); }
+[data-theme="autumn"] .leaf-red    { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 1.5L13.6 5.5L18 4.5L16 9L21 10.5L16.5 13L19.5 17L14 16L13.5 21L12 18L10.5 21L10 16L4.5 17L7.5 13L3 10.5L8 9L6 4.5L10.4 5.5L12 1.5Z' fill='%23b04428'/></svg>"); }
+[data-theme="autumn"] .leaf-gold   { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 1.5L13.6 5.5L18 4.5L16 9L21 10.5L16.5 13L19.5 17L14 16L13.5 21L12 18L10.5 21L10 16L4.5 17L7.5 13L3 10.5L8 9L6 4.5L10.4 5.5L12 1.5Z' fill='%23e8b04c'/></svg>"); }
+[data-theme="autumn"] .leaf-brown  { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 1.5L13.6 5.5L18 4.5L16 9L21 10.5L16.5 13L19.5 17L14 16L13.5 21L12 18L10.5 21L10 16L4.5 17L7.5 13L3 10.5L8 9L6 4.5L10.4 5.5L12 1.5Z' fill='%237a3e1f'/></svg>"); }
+
+[data-theme="autumn"] .leaf:nth-child(1) { left:  5%; --s: 1;    animation-duration: 13s;   animation-delay: -2s;  }
+[data-theme="autumn"] .leaf:nth-child(2) { left: 19%; --s: 0.8;  animation-duration: 15s;   animation-delay: -7s;  }
+[data-theme="autumn"] .leaf:nth-child(3) { left: 33%; --s: 1.2;  animation-duration: 12s;   animation-delay: -10s; }
+[data-theme="autumn"] .leaf:nth-child(4) { left: 48%; --s: 0.85; animation-duration: 14s;   animation-delay: -3s;  }
+[data-theme="autumn"] .leaf:nth-child(5) { left: 62%; --s: 1.05; animation-duration: 16s;   animation-delay: -12s; }
+[data-theme="autumn"] .leaf:nth-child(6) { left: 75%; --s: 0.95; animation-duration: 13.5s; animation-delay: -5s;  }
+[data-theme="autumn"] .leaf:nth-child(7) { left: 87%; --s: 0.75; animation-duration: 15.5s; animation-delay: -9s;  }
+[data-theme="autumn"] .leaf:nth-child(8) { left: 95%; --s: 1.1;  animation-duration: 12.5s; animation-delay: -1s;  }
+
+@keyframes leafFall {
+  0%   { transform: translate(0, -10vh)    rotate(0deg)   scale(var(--s,1)); opacity: 0; }
+  10%  { opacity: 0.7; }
+  50%  { transform: translate(40px, 50vh)  rotate(360deg) scale(var(--s,1)); }
+  90%  { opacity: 0.6; }
+  100% { transform: translate(-30px, 110vh) rotate(720deg) scale(var(--s,1)); opacity: 0; }
+}
+```
+
+```html
+<div class="season-decor" aria-hidden="true">
+  <span class="leaf leaf-orange"></span><span class="leaf leaf-red"></span>
+  <span class="leaf leaf-gold"></span><span class="leaf leaf-brown"></span>
+  <span class="leaf leaf-orange"></span><span class="leaf leaf-red"></span>
+  <span class="leaf leaf-gold"></span><span class="leaf leaf-brown"></span>
+</div>
+```
+
+---
+
+### 冬雪 WINTER — 雪花飘落
+
+```css
+[data-theme="winter"] {
+  --bg-parchment:  #f4f8fb;
+  --bg-card:       rgb(248, 250, 252);
+  --bg-mint-light: #dce8f0;
+
+  --text-primary:   #1e3a4f;
+  --text-body:      #324f64;
+  --text-secondary: #6a8090;
+  --text-muted:     #8ea3b3;
+
+  --accent-teal:    #7fc1e8;
+  --accent-teal-a:  #5fa9d5;
+  --accent-yellow:  #f4a261;
+  --accent-yellow-d:#d98c45;
+  --green:          #2f6645;
+
+  --border-std:   2px solid #a8c0d4;
+  --shadow-btn:   0 5px 0 0 #a8c0d4;
+  --shadow-btn-h: 0 6px 0 0 #a8c0d4;
+  --shadow-btn-a: 0 1px 0 0 #a8c0d4;
+  --shadow-card:  0 4px 10px rgba(40, 70, 100, 0.22);
+}
+
+/* 雪花（12 片，缓慢下落 + 微摆动；尺寸用 --s 变量分层）*/
+[data-theme="winter"] .snow {
+  top: -20px; width: 6px; height: 6px; border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 8px rgba(127, 193, 232, 0.85);
+  opacity: 0.7;
+  animation: snowFall linear infinite;
+}
+[data-theme="winter"] .snow:nth-child(1)  { left:  4%; --s: 1;    animation-duration: 12s;   animation-delay: -1s;  }
+[data-theme="winter"] .snow:nth-child(2)  { left: 12%; --s: 0.7;  animation-duration: 16s;   animation-delay: -5s;  }
+[data-theme="winter"] .snow:nth-child(3)  { left: 21%; --s: 1.3;  animation-duration: 10s;   animation-delay: -8s;  }
+[data-theme="winter"] .snow:nth-child(4)  { left: 30%; --s: 0.8;  animation-duration: 14s;   animation-delay: -3s;  }
+[data-theme="winter"] .snow:nth-child(5)  { left: 39%; --s: 1.1;  animation-duration: 11s;   animation-delay: -11s; }
+[data-theme="winter"] .snow:nth-child(6)  { left: 48%; --s: 0.6;  animation-duration: 18s;   animation-delay: -6s;  }
+[data-theme="winter"] .snow:nth-child(7)  { left: 57%; --s: 1;    animation-duration: 13s;   animation-delay: -2s;  }
+[data-theme="winter"] .snow:nth-child(8)  { left: 66%; --s: 0.9;  animation-duration: 15s;   animation-delay: -9s;  }
+[data-theme="winter"] .snow:nth-child(9)  { left: 75%; --s: 1.2;  animation-duration: 12s;   animation-delay: -4s;  }
+[data-theme="winter"] .snow:nth-child(10) { left: 83%; --s: 0.75; animation-duration: 17s;   animation-delay: -10s; }
+[data-theme="winter"] .snow:nth-child(11) { left: 91%; --s: 1.05; animation-duration: 11.5s; animation-delay: -7s;  }
+[data-theme="winter"] .snow:nth-child(12) { left: 97%; --s: 0.85; animation-duration: 14.5s; animation-delay: -12s; }
+
+@keyframes snowFall {
+  0%   { transform: translate(0, -10vh)   scale(var(--s,1)); opacity: 0; }
+  10%  { opacity: 0.85; }
+  25%  { transform: translate(8px, 25vh)  scale(var(--s,1)); }
+  50%  { transform: translate(-6px, 50vh) scale(var(--s,1)); }
+  75%  { transform: translate(10px, 75vh) scale(var(--s,1)); }
+  90%  { opacity: 0.7; }
+  100% { transform: translate(0, 110vh)   scale(var(--s,1)); opacity: 0; }
+}
+```
+
+```html
+<div class="season-decor" aria-hidden="true">
+  <span class="snow"></span><span class="snow"></span><span class="snow"></span>
+  <span class="snow"></span><span class="snow"></span><span class="snow"></span>
+  <span class="snow"></span><span class="snow"></span><span class="snow"></span>
+  <span class="snow"></span><span class="snow"></span><span class="snow"></span>
+</div>
+```
+
+---
+
+### 与 Layout 的搭配建议
+
+| 主题 | 强搭配 layout | 适用场景 |
+|---|---|---|
+| spring  | Cover, Island Scene, Pull Quote, Color Wheel              | 春季发布、品牌焕新、年初规划 |
+| summer  | Cover, Island Scene, Big Stat Hero, Stat Strip            | 暑期发布会、夏令营、活力主题 |
+| autumn  | Section Divider, Timeline, FAQ, Quote                     | 复盘、年中总结、回顾型内容 |
+| winter  | Cover, Section Divider, Stat Strip, Comparison            | 年终总结、年会汇报、回首与展望 |
+
+### 与现有氛围工具组合
+
+- **Time HUD**：4 季皆可叠加，颜色自动跟随 `--text-primary` token，无需调整
+- **AC Cursor**：黄色光标在冬季冷调背景反差最强；夏季背景偏黄，反差较弱
+- **Divider 花纹**：5 种皆兼容；偏好：spring → wave-yellow，autumn → brown，winter → teal
