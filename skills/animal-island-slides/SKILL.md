@@ -96,6 +96,13 @@ description: 用动物森友会风格生成零依赖 HTML 演示文稿，或将 
 | 代码片段 / 配置示例 / API 用法（技术分享） | Code Slide |
 | 产品功能矩阵 / 章节总览 / 目录页（AC 标志性视觉） | NookPhone Showcase |
 | 常见问题 / "为什么这么做" 复盘 / 技术 Q&A | FAQ |
+| 章节大开场 / 产品愿景 / 沉浸式结尾页（岛屿插画为主） | Island Scene |
+| 团队成员 / 品牌色板 / 分类目录 / 角色色谱（4-13 项） | Color Wheel |
+| 用户原话 / 客户证言 / 产品哲学 / 品牌口吻金句（"NPC 在说话"叙事感） | Dialogue Modal |
+| 技术栈 / 能力矩阵 / 产品模块概览 / 团队职能图（中心 + 4-8 卫星） | Icon Constellation |
+| 今日/本周/本月 · 方案 A/B/C · 多视角同主题（点击切换面板） | Tabs Switcher |
+| 渐进披露 / 步骤详解 / 复盘清单 / 深度问题（默认折叠，点击展开） | Collapse Stack |
+| 功能开关清单 / 特性对比 / 规格表 / "选择你的路线"（带控件状态） | Settings Panel |
 
 用 AskUserQuestion 展示大纲并确认：
 - 选项：看起来不错，开始生成 / 调整大纲
@@ -112,7 +119,9 @@ description: 用动物森友会风格生成零依赖 HTML 演示文稿，或将 
 2. 按大纲顺序组合各 LAYOUT 的 CSS 和 HTML 片段
 3. 所有 `data-slide="N"` 从 0 开始顺序编号
 4. 第一张幻灯片加 `class="slide ... active"`，其余只有 `class="slide ..."`
-5. 将文件保存为 `[演示文稿名称].html`，路径在当前工作目录
+5. **如果用到 Layout S / W / T**：把 html-template.md 中"交互脚本钩子"section 的全部 JS 追加到 BASE 的 `<script>` 块末尾（Tabs / Collapse / Settings 三段都是命中 0 元素就 no-op 的安全代码，遇到不确定就全部加上）
+   **如果开启 Time HUD / AC Cursor / Divider 氛围工具**：见 html-template.md "氛围工具"section，按需把 CSS/HTML/JS 片段加进 BASE
+6. 将文件保存为 `[演示文稿名称].html`，路径在当前工作目录
 
 **生成后**：
 - 用 `open [文件名].html` 在浏览器中打开

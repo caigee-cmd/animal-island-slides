@@ -33,6 +33,13 @@
 | Code Slide | 1 标题 + 1 代码卡（≤10 行）+ 1 行 caption |
 | NookPhone Showcase | 1 标题 + 9 个 app（≤6 字标签） + 2 段说明 |
 | FAQ | 1 标题 + 3-4 组 Q+A（Q ≤25 字, A ≤60 字） |
+| Island Scene | 1 eyebrow + 1 主标题（≤16 字）+ 1 caption（≤40 字） |
+| Color Wheel | 1 标题 + 4-13 chip（label ≤6 字 + sub ≤8 字） + 1 行可选注脚 |
+| Dialogue Modal | 1 说话者牌（2 字头像 + 姓名 ≤6 字 + 角色 ≤10 字）+ 1-2 段对话（总 ≤100 字） |
+| Icon Constellation | 1 中央标题（≤12 字）+ 可选 caption（≤24 字）+ 4-8 个图标节点（label ≤8 字） |
+| Tabs Switcher | 1 标题 + 2-4 个 tab + 每个 panel 内 1 副标题 + 2-4 个要点（每要点 ≤40 字） |
+| Collapse Stack | 1 标题 + 3-5 个 collapse-item（每 item：Q ≤30 字 + A 1-2 段 / ≤4 li） |
+| Settings Panel | 1 标题 + 可选 caption + 3-6 行（每行：图标 + 标签 + 描述 + 控件） |
 
 ---
 
@@ -1988,6 +1995,1553 @@ document.addEventListener('touchend',   e => { const dx = e.changedTouches[0].cl
 ```
 
 **密度上限**：1 标题 + 3-4 组 Q+A（每 Q ≤25 字，每 A ≤60 字）。
+
+---
+
+## LAYOUT Q — Island Scene（岛屿场景 / Ambient Hero）
+
+**使用场景**：章节大开场、"故事开始"、结尾抒情页、产品愿景页。比 Cover 更有沉浸感，整张幻灯片以一幅可呼吸的岛屿插画作底，文字漂浮在水面之上。
+**背景**：天空 → 远水 → 沙滩四段渐变。
+
+### CSS
+
+```css
+.slide-scene {
+  background: linear-gradient(180deg, #b4e4f2 0%, #d8ecf0 45%, #f0eed5 75%, var(--bg-parchment) 100%);
+  align-items: center;
+  text-align: center;
+  padding: clamp(40px,7vh,90px) clamp(24px,5vw,80px) 0;
+}
+
+/* 云 & 鸟（天空装饰）*/
+.scene-cloud, .scene-bird { position: absolute; pointer-events: none; }
+.scene-cloud { opacity: 0.85; animation: cloudDrift 14s ease-in-out infinite; }
+.scene-cloud-1 { top: clamp(8%,12vh,18%);  left: 6%;  width: clamp(80px,11vw,140px); }
+.scene-cloud-2 { top: clamp(14%,18vh,24%); right: 8%; width: clamp(60px,9vw,110px); animation-delay: -7s; }
+@keyframes cloudDrift {
+  0%,100% { transform: translateX(0); }
+  50%     { transform: translateX(20px); }
+}
+
+.scene-bird {
+  opacity: 0.55; color: var(--text-muted);
+  animation: birdFly 7s ease-in-out infinite;
+}
+.scene-bird-1 { top: 20%; left: 24%;  width: clamp(28px,3.5vw,40px); }
+.scene-bird-2 { top: 26%; right: 28%; width: clamp(24px,3vw,34px); animation-delay: -3.5s; }
+@keyframes birdFly {
+  0%,100% { transform: translate(0,0); }
+  50%     { transform: translate(36px,-8px); }
+}
+
+/* 主内容（标题块在岛屿之上）*/
+.scene-content {
+  position: relative; z-index: 2;
+  margin-top: clamp(20px,5vh,60px);
+  opacity: 0; transform: translateY(16px);
+  transition: opacity 0.55s var(--ease-ac), transform 0.55s var(--ease-ac);
+}
+.scene-content > * + * { margin-top: clamp(10px,1.8vh,18px); }
+.slide.entered .scene-content      { opacity: 1; transform: translateY(0); transition-delay: 0.18s; }
+.slide:not(.entered) .scene-content { transition-delay: 0s; }
+
+.scene-eyebrow {
+  display: inline-block;
+  padding: 6px 18px;
+  background: var(--bg-card); border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-btn);
+  font-size: clamp(10px,1.2vw,13px); font-weight: 700;
+  color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase;
+}
+.scene-title {
+  font-size: clamp(32px,6vw,76px); font-weight: 900;
+  color: var(--text-primary); line-height: 1.08; letter-spacing: -0.01em;
+  text-shadow: 0 3px 0 rgba(255,255,255,0.5);
+}
+.scene-title em { font-style: normal; color: var(--accent-teal); }
+.scene-caption {
+  font-size: clamp(14px,1.8vw,19px); font-weight: 600;
+  color: var(--text-body); line-height: 1.5;
+  max-width: 560px; margin-left: auto; margin-right: auto;
+}
+
+/* 岛屿插画，绝对定位到底部 */
+.scene-stage {
+  position: absolute; left: 50%; bottom: -2px;
+  transform: translateX(-50%);
+  width: min(720px, 88%);
+  pointer-events: none; z-index: 1;
+}
+
+/* 树摇摆（SVG transform-box 保证 transform-origin 用元素自身的盒子）*/
+.scene-tree {
+  transform-box: fill-box; transform-origin: 50% 90%;
+  animation: treeSway 5.5s ease-in-out infinite;
+}
+@keyframes treeSway {
+  0%,100% { transform: rotate(-1.4deg); }
+  50%     { transform: rotate(1.4deg); }
+}
+
+/* 水波横向漂移 */
+.scene-wave   { animation: waveDrift 3.8s ease-in-out infinite; }
+.scene-wave-b { animation-delay: -1.9s; }
+@keyframes waveDrift {
+  0%,100% { transform: translateX(0); }
+  50%     { transform: translateX(-14px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-cloud, .scene-bird, .scene-tree, .scene-wave { animation: none; }
+}
+```
+
+### HTML 片段
+
+```html
+<section class="slide slide-scene" data-slide="N">
+  <!-- 天空：云 -->
+  <svg class="scene-cloud scene-cloud-1" viewBox="0 0 140 50" fill="#fff" aria-hidden="true">
+    <ellipse cx="35"  cy="30" rx="30" ry="16"/>
+    <ellipse cx="78"  cy="25" rx="34" ry="20"/>
+    <ellipse cx="115" cy="32" rx="22" ry="14"/>
+  </svg>
+  <svg class="scene-cloud scene-cloud-2" viewBox="0 0 120 40" fill="#fff" aria-hidden="true">
+    <ellipse cx="28" cy="24" rx="22" ry="13"/>
+    <ellipse cx="66" cy="20" rx="28" ry="16"/>
+    <ellipse cx="98" cy="26" rx="18" ry="11"/>
+  </svg>
+
+  <!-- 天空：远处的小鸟 -->
+  <svg class="scene-bird scene-bird-1" viewBox="0 0 40 18" aria-hidden="true">
+    <path d="M2 14 Q10 3 19 12 Q26 3 38 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+  <svg class="scene-bird scene-bird-2" viewBox="0 0 40 18" aria-hidden="true">
+    <path d="M2 14 Q10 3 19 12 Q26 3 38 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+
+  <!-- 标题文字 -->
+  <div class="scene-content">
+    <div class="scene-eyebrow"><!-- 章节号 / "下一章" / "PROLOGUE" --></div>
+    <h2 class="scene-title"><!-- 主标题，<em> 包裹高亮词 --></h2>
+    <p class="scene-caption"><!-- 1-2 行描述 --></p>
+  </div>
+
+  <!-- 岛屿插画 -->
+  <svg class="scene-stage" viewBox="0 0 640 440" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <!-- 远水（淡蓝带）-->
+    <path class="scene-wave scene-wave-b" d="M0 360 Q160 350 320 360 T640 360 L640 410 L0 410 Z" fill="#bae4f0"/>
+
+    <!-- 三角海浪（AC 标志性视觉）-->
+    <g fill="#2ec3ec" class="scene-wave">
+      <path d="M40 365 L60 340 L80 365 Z"/>
+      <path d="M120 365 L140 340 L160 365 Z"/>
+      <path d="M480 365 L500 340 L520 365 Z"/>
+      <path d="M560 365 L580 340 L600 365 Z"/>
+    </g>
+
+    <!-- 沙滩 -->
+    <ellipse cx="320" cy="370" rx="240" ry="55" fill="#fed09d"/>
+    <path d="M150 372 Q160 410 200 416 Q260 420 320 420 Q400 418 460 416 Q495 410 490 372 Z" fill="#fbb381" opacity="0.96"/>
+
+    <!-- 草地（圆顶岛丘）-->
+    <path d="M150 370 Q170 280 240 270 Q310 260 380 272 Q440 285 490 370 Z" fill="#8cc751"/>
+
+    <!-- 草地装饰三角 -->
+    <path d="M210 340 L226 322 L240 348 Z" fill="#78bb4d"/>
+    <path d="M280 320 L296 302 L312 328 Z" fill="#78bb4d"/>
+    <path d="M380 318 L396 300 L412 326 Z" fill="#78bb4d"/>
+    <path d="M440 342 L454 326 L470 350 Z" fill="#78bb4d"/>
+
+    <!-- 椰子树（摇摆）-->
+    <g class="scene-tree">
+      <!-- 树干 -->
+      <path d="M312 330 Q307 270 310 220 Q302 200 318 178 Q334 200 326 220 Q329 270 322 330 Z" fill="#e5b13b"/>
+      <path d="M315 268 Q321 256 322 244" stroke="#c89630" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.55"/>
+      <path d="M316 220 Q322 208 320 196" stroke="#c89630" stroke-width="2"  fill="none" stroke-linecap="round" opacity="0.5"/>
+      <!-- 叶冠 -->
+      <ellipse cx="318" cy="150" rx="82" ry="50" fill="#8cc751"/>
+      <ellipse cx="282" cy="138" rx="38" ry="30" fill="#ABD25E"/>
+      <ellipse cx="350" cy="140" rx="40" ry="32" fill="#ABD25E"/>
+      <ellipse cx="318" cy="115" rx="34" ry="28" fill="#ABD25E"/>
+      <!-- 叶面高光 -->
+      <ellipse cx="294" cy="128" rx="13" ry="9" fill="#bbd86a" opacity="0.75"/>
+      <ellipse cx="336" cy="132" rx="11" ry="8" fill="#bbd86a" opacity="0.75"/>
+    </g>
+  </svg>
+</section>
+```
+
+**密度上限**：1 eyebrow（≤12 字） + 1 主标题（≤16 字，含 `<em>` 高亮） + 1 caption（≤40 字）。文字仅承担"破题"作用，主视觉是岛屿。
+
+---
+
+## LAYOUT V — Color Wheel（角色色盘 / Palette Honeycomb）
+
+**使用场景**：团队成员介绍、品牌色板、分类目录、人格 / 角色总览。把 animal-island-ui 的 13 种 Card 配色全部用上，做出"一眼记住所有人 / 所有分类"的视觉冲击。
+**背景**：羊皮纸 `--bg-parchment`，蜂巢状陈列的圆形彩色徽章。
+
+### CSS
+
+```css
+.slide-wheel {
+  background: var(--bg-parchment);
+  padding: clamp(28px,4.5vh,52px) clamp(28px,5vw,72px) clamp(40px,6vh,72px);
+  justify-content: center; align-items: center;
+}
+
+/* 标题（复用 slide-header 视觉，但居中）*/
+.wheel-header {
+  text-align: center;
+  margin-bottom: clamp(18px,3vh,32px);
+  opacity: 0; transform: translateY(12px);
+  transition: opacity 0.45s var(--ease-ac), transform 0.45s var(--ease-ac);
+}
+.slide.entered .wheel-header      { opacity: 1; transform: translateY(0); transition-delay: 0.05s; }
+.slide:not(.entered) .wheel-header { transition-delay: 0s; }
+
+.wheel-label {
+  font-size: clamp(10px,1.2vw,12px); font-weight: 700;
+  color: var(--accent-teal); letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.wheel-title {
+  font-size: clamp(24px,3.5vw,46px); font-weight: 900;
+  color: var(--text-primary); line-height: 1.15;
+}
+
+/* 蜂巢容器 */
+.wheel-grid {
+  display: flex; flex-direction: column;
+  gap: clamp(8px,1.5vh,18px);
+  align-items: center;
+  width: 100%; max-width: 1000px;
+}
+.wheel-row {
+  display: flex;
+  gap: clamp(10px,1.4vw,20px);
+  justify-content: center;
+}
+/* 第二排向右偏移半个 chip，形成蜂巢 */
+.wheel-row.offset { margin-left: clamp(40px,5vw,70px); }
+
+/* 圆形徽章 */
+.wheel-chip {
+  width: clamp(64px,9vw,110px);
+  height: clamp(64px,9vw,110px);
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 6px;
+  box-shadow: 0 5px 0 0 rgba(0,0,0,0.12), inset 0 0 0 3px rgba(255,255,255,0.55);
+  opacity: 0; transform: scale(0.6);
+  transition:
+    opacity 0.4s var(--ease-ac),
+    transform 0.4s var(--ease-ac),
+    box-shadow 0.25s var(--ease-ac);
+  cursor: default;
+}
+.wheel-chip:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 9px 0 0 rgba(0,0,0,0.14), inset 0 0 0 3px rgba(255,255,255,0.7);
+}
+
+/* 入场逐个弹出 — 用 inline --i 控制顺序 */
+.slide.entered .wheel-chip {
+  opacity: 1; transform: scale(1);
+  transition-delay: calc(0.08s + var(--i, 0) * 0.045s);
+}
+.slide:not(.entered) .wheel-chip { transition-delay: 0s; }
+
+/* 13 种 AC Card 配色（与 animal-island-ui 一致）*/
+.chip-pink         { background: #f8a6b2; color: #fff; }
+.chip-purple       { background: #b77dee; color: #fff; }
+.chip-blue         { background: #889df0; color: #fff; }
+.chip-yellow       { background: #f7cd67; color: var(--text-body); }
+.chip-orange       { background: #e59266; color: #fff; }
+.chip-teal         { background: #82d5bb; color: #fff; }
+.chip-green        { background: #8ac68a; color: #fff; }
+.chip-red          { background: #fc736d; color: #fff; }
+.chip-lime         { background: #d1da49; color: #3d5a1a; }
+.chip-yellow-green { background: #ecdf52; color: var(--text-body); }
+.chip-brown        { background: #9a835a; color: #fff; }
+.chip-peach        { background: #e18c6f; color: #fff; }
+.chip-default      { background: rgb(247,243,223); color: var(--text-body); box-shadow: 0 5px 0 0 rgba(0,0,0,0.12), inset 0 0 0 3px rgba(159,146,125,0.35); }
+
+.chip-label {
+  font-size: clamp(11px,1.3vw,15px); font-weight: 800;
+  line-height: 1.15; letter-spacing: 0.02em;
+}
+.chip-sub {
+  font-size: clamp(9px,1vw,11px); font-weight: 600;
+  opacity: 0.85; margin-top: 2px; line-height: 1.2;
+}
+
+/* 底部注脚（可选）*/
+.wheel-caption {
+  margin-top: clamp(18px,3vh,30px);
+  font-size: clamp(13px,1.5vw,16px); font-weight: 600;
+  color: var(--text-body); text-align: center;
+  max-width: 720px;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.4s var(--ease-ac) 0.55s, transform 0.4s var(--ease-ac) 0.55s;
+}
+.slide.entered .wheel-caption      { opacity: 1; transform: translateY(0); }
+.slide:not(.entered) .wheel-caption { transition-delay: 0s; }
+
+@media (max-height: 700px) {
+  .wheel-chip { width: clamp(56px,7vw,88px); height: clamp(56px,7vw,88px); }
+}
+```
+
+### HTML 片段
+
+```html
+<section class="slide slide-wheel" data-slide="N">
+  <div class="wheel-header">
+    <div class="wheel-label"><!-- 顶部小标签 --></div>
+    <h2 class="wheel-title"><!-- 标题 --></h2>
+  </div>
+
+  <div class="wheel-grid">
+    <!-- 第一排 4 个 -->
+    <div class="wheel-row">
+      <div class="wheel-chip chip-pink"   style="--i:0;"><div class="chip-label"><!-- 标签 --></div><div class="chip-sub"><!-- 副标签 --></div></div>
+      <div class="wheel-chip chip-purple" style="--i:1;"><div class="chip-label">…</div><div class="chip-sub">…</div></div>
+      <div class="wheel-chip chip-blue"   style="--i:2;"><div class="chip-label">…</div><div class="chip-sub">…</div></div>
+      <div class="wheel-chip chip-yellow" style="--i:3;"><div class="chip-label">…</div><div class="chip-sub">…</div></div>
+    </div>
+
+    <!-- 第二排 5 个，蜂巢偏移 -->
+    <div class="wheel-row offset">
+      <div class="wheel-chip chip-orange" style="--i:4;"><div class="chip-label">…</div><div class="chip-sub">…</div></div>
+      <div class="wheel-chip chip-teal"   style="--i:5;"><div class="chip-label">…</div><div class="chip-sub">…</div></div>
+      <div class="wheel-chip chip-green"  style="--i:6;"><div class="chip-label">…</div><div class="chip-sub">…</div></div>
+      <div class="wheel-chip chip-red"    style="--i:7;"><div class="chip-label">…</div><div class="chip-sub">…</div></div>
+      <div class="wheel-chip chip-lime"   style="--i:8;"><div class="chip-label">…</div><div class="chip-sub">…</div></div>
+    </div>
+
+    <!-- 第三排 4 个 -->
+    <div class="wheel-row">
+      <div class="wheel-chip chip-yellow-green" style="--i:9;"><div class="chip-label">…</div><div class="chip-sub">…</div></div>
+      <div class="wheel-chip chip-brown"        style="--i:10;"><div class="chip-label">…</div><div class="chip-sub">…</div></div>
+      <div class="wheel-chip chip-peach"        style="--i:11;"><div class="chip-label">…</div><div class="chip-sub">…</div></div>
+      <div class="wheel-chip chip-default"      style="--i:12;"><div class="chip-label">…</div><div class="chip-sub">…</div></div>
+    </div>
+  </div>
+
+  <p class="wheel-caption"><!-- 可选 1 行说明，例如"每个色彩对应一个角色 / 类别" --></p>
+</section>
+```
+
+**密度上限**：1 标题 + 4-13 个 chip（每 chip：label ≤6 字 + sub ≤8 字） + 1 行可选注脚。chip 少于 7 个时只用前 2 排（4+3）；7-12 个用 4+5+3 或 4+4+4；满 13 个走 4+5+4 蜂巢。`--i` 序号必须从 0 顺序递增。
+
+---
+
+## LAYOUT R — Dialogue Modal（NPC 对话框 / Game Dialog）
+
+**使用场景**：用户原话/客户证言、产品哲学、品牌口吻金句、故事开场白。和 Pull Quote（Layout J）的区别：J 是大字金句"打到读者脸上"；R 是 NPC 在镜头里说话——角色感和情境感更强。
+**背景**：天空-草地-沙滩的渐变剪影，把读者放进游戏画面里。
+**关键视觉**：直接复用 animal-island-ui Modal 的标志性 blob clip-path，配合左上角"姓名牌 + 头像"+ 右下角闪烁继续箭头。
+
+### CSS
+
+```css
+.slide-dialog {
+  background: linear-gradient(180deg, #c8e8d6 0%, #d8eedf 40%, #ecdca8 75%, #e5b88a 100%);
+  align-items: center;
+  justify-content: flex-end;
+  padding: clamp(40px,5vh,70px) clamp(40px,7vw,120px) clamp(60px,9vh,110px);
+}
+
+/* 背景：远处草丘剪影 */
+.slide-dialog::before {
+  content: '';
+  position: absolute;
+  bottom: 38%; left: 0; right: 0;
+  height: 24%;
+  background:
+    radial-gradient(ellipse 30% 100% at 22% 100%, #abd25e 0%, transparent 78%),
+    radial-gradient(ellipse 38% 100% at 76% 100%, #abd25e 0%, transparent 78%);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* 对话框（Modal 风格 blob clip-path）*/
+.dialog-box {
+  width: 100%; max-width: 880px;
+  background: rgb(247, 243, 223);
+  clip-path: url(#animal-dialog-clip);
+  padding: clamp(44px,5.5vw,72px) clamp(44px,5.5vw,72px) clamp(56px,7vh,80px);
+  position: relative;
+  opacity: 0; transform: scale(0.92) translateY(40px);
+  transition: opacity 0.55s var(--ease-ac), transform 0.55s var(--ease-ac);
+}
+.slide.entered .dialog-box      { opacity: 1; transform: scale(1) translateY(0); transition-delay: 0.12s; }
+.slide:not(.entered) .dialog-box { transition-delay: 0s; }
+
+/* 左上角说话者牌（横跨对话框边缘）*/
+.dialog-speaker {
+  position: absolute;
+  top: 0; left: clamp(36px,5vw,60px);
+  display: flex; align-items: center;
+  gap: clamp(10px,1.5vw,16px);
+  background: var(--accent-yellow);
+  padding: 6px clamp(16px,2.2vw,24px) 6px 6px;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 0 0 var(--accent-yellow-d);
+  z-index: 2;
+  opacity: 0; transform: translate(-12px,-40%);
+  transition: opacity 0.5s var(--ease-ac), transform 0.5s var(--ease-ac);
+}
+.slide.entered .dialog-speaker      { opacity: 1; transform: translate(0,-50%); transition-delay: 0.32s; }
+.slide:not(.entered) .dialog-speaker { transition-delay: 0s; }
+
+.speaker-avatar {
+  width: clamp(36px,4.5vw,52px); height: clamp(36px,4.5vw,52px);
+  border-radius: 50%;
+  background: var(--accent-teal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(13px,1.6vw,18px); font-weight: 900;
+  color: #fff;
+  border: 3px solid #fff;
+  flex-shrink: 0;
+}
+.speaker-name {
+  display: flex; flex-direction: column;
+  font-size: clamp(13px,1.5vw,16px); font-weight: 800;
+  color: var(--text-primary); line-height: 1.15;
+}
+.speaker-name small {
+  font-size: clamp(10px,1.1vw,12px); font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+
+/* 对话文本 */
+.dialog-text {
+  font-size: clamp(18px,2.4vw,30px); font-weight: 600;
+  line-height: 1.65;
+  color: var(--text-body);
+  letter-spacing: 0.01em;
+  text-align: left;
+  margin-top: clamp(8px,1.5vh,16px);
+}
+.dialog-text > p + p { margin-top: clamp(8px,1.4vh,14px); }
+.dialog-text strong { color: var(--accent-teal); font-weight: 800; }
+.dialog-text em { font-style: normal; color: var(--text-primary); font-weight: 700; }
+
+/* 右下角继续指示器（闪烁向下箭头）*/
+.dialog-cursor {
+  position: absolute;
+  bottom: clamp(18px,2.5vh,28px); right: clamp(38px,5vw,60px);
+  width: 0; height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 14px solid var(--text-muted);
+  opacity: 0;
+}
+.slide.entered .dialog-cursor { animation: dialogBlink 1.4s ease-in-out 1s infinite; }
+@keyframes dialogBlink {
+  0%,100% { opacity: 0.35; transform: translateY(0); }
+  50%     { opacity: 0.95; transform: translateY(5px); }
+}
+```
+
+### HTML 片段
+
+```html
+<section class="slide slide-dialog" data-slide="N">
+  <!-- Modal blob clip-path 定义（每张 dialog 幻灯片自带也安全：相同 id 浏览器忽略重复）-->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <clipPath id="animal-dialog-clip" clipPathUnits="objectBoundingBox">
+        <path d="M0.501,0.005 L0.501,0.005 L0.523,0.005 L0.549,0.006 C0.704,0.01,0.796,0.017,0.825,0.027 L0.827,0.028 C0.872,0.045,0.939,0.044,0.978,0.17 C1,0.254,1,0.365,0.99,0.505 L0.988,0.513 C0.979,0.558,0.971,0.598,0.965,0.633 C0.956,0.689,0.979,0.77,0.964,0.865 C0.953,0.928,0.921,0.966,0.869,0.979 C0.821,0.986,0.773,0.992,0.726,0.995 L0.712,0.996 L0.694,0.997 C0.648,1,0.586,1,0.507,1 L0.501,1 L0.464,1 C0.385,1,0.325,0.998,0.283,0.995 C0.234,0.992,0.184,0.987,0.133,0.979 C0.081,0.966,0.05,0.928,0.039,0.865 C0.023,0.77,0.047,0.689,0.037,0.633 C0.031,0.595,0.023,0.552,0.013,0.505 C-0.006,0.365,-0.002,0.254,0.024,0.17 C0.064,0.045,0.13,0.045,0.174,0.028 L0.175,0.028 C0.204,0.017,0.303,0.009,0.474,0.005 L0.501,0.005"/>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <div class="dialog-box">
+    <!-- 说话者名牌（搭在对话框左上边缘）-->
+    <div class="dialog-speaker">
+      <div class="speaker-avatar"><!-- 2 字缩写 --></div>
+      <div class="speaker-name">
+        <!-- 姓名 -->
+        <small><!-- 职位 / 角色描述 --></small>
+      </div>
+    </div>
+
+    <!-- 对话内容 -->
+    <div class="dialog-text">
+      <p><!-- 第一段对话，1-2 句。<strong> 高亮关键词，<em> 加重次要词 --></p>
+      <p><!-- 可选第二段（更长内容请拆分到下一张幻灯片）--></p>
+    </div>
+
+    <!-- 闪烁向下箭头 -->
+    <div class="dialog-cursor" aria-hidden="true"></div>
+  </div>
+</section>
+```
+
+**密度上限**：1 说话者牌（2 字头像 + 姓名 ≤6 字 + 角色 ≤10 字） + 1-2 段对话（每段 ≤60 字，总字数 ≤100 字）。超出请拆为多张 dialog 幻灯片，营造"连续对话"的叙事感。
+
+---
+
+## LAYOUT U — Icon Constellation（图标星座 / Capability Map）
+
+**使用场景**：技术栈、能力矩阵、产品模块概览、团队职能图。和 Card Grid（Layout B）的区别：B 是规整 3×2 表格强调"枚举"；U 是中心标题 + 周围 4-8 个"卫星"图标节点，强调"以核心为中心向外辐射"的关系。
+**背景**：羊皮纸 + 点纹星空背景。
+**搭配**：节点内的 SVG 图标推荐从下方"AC 内置图标库（10 枚）"复用，也可用任意单色 inline SVG。
+
+### CSS
+
+```css
+.slide-constellation {
+  background: var(--bg-parchment);
+  padding: clamp(28px,5vh,60px) clamp(40px,6vw,100px);
+  justify-content: center; align-items: center;
+}
+
+/* 星空点纹 */
+.slide-constellation::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(159,146,125,0.18) 1.2px, transparent 1.4px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+
+/* 中央徽章 */
+.constellation-center {
+  position: relative; z-index: 3;
+  background: var(--bg-card);
+  border: var(--border-std);
+  border-radius: var(--radius-organic);
+  padding: clamp(20px,3vh,32px) clamp(28px,4vw,44px);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+  max-width: clamp(280px,38vw,420px);
+  opacity: 0; transform: scale(0.85);
+  transition: opacity 0.5s var(--ease-ac), transform 0.5s var(--ease-ac);
+}
+.slide.entered .constellation-center      { opacity: 1; transform: scale(1); transition-delay: 0.05s; }
+.slide:not(.entered) .constellation-center { transition-delay: 0s; }
+
+.center-eyebrow {
+  font-size: clamp(10px,1.2vw,12px); font-weight: 700;
+  color: var(--accent-teal); letter-spacing: 0.14em; text-transform: uppercase;
+  margin-bottom: clamp(6px,1vh,10px);
+}
+.center-title {
+  font-size: clamp(22px,3vw,38px); font-weight: 900;
+  color: var(--text-primary); line-height: 1.15;
+}
+.center-caption {
+  margin-top: clamp(6px,1vh,12px);
+  font-size: clamp(12px,1.4vw,15px); font-weight: 600;
+  color: var(--text-body); line-height: 1.45;
+}
+
+/* 卫星节点（外层定位 + 内层动画分离）*/
+.cnode {
+  position: absolute;
+  z-index: 2;
+}
+.cnode-inner {
+  display: flex; flex-direction: column; align-items: center;
+  gap: clamp(6px,1vh,10px);
+  opacity: 0; transform: scale(0.4);
+  transition: opacity 0.45s var(--ease-ac), transform 0.45s var(--ease-ac);
+}
+.slide.entered .cnode-inner {
+  opacity: 1; transform: scale(1);
+  transition-delay: calc(0.25s + var(--i,0) * 0.07s);
+}
+.slide:not(.entered) .cnode-inner { transition-delay: 0s; }
+
+.cnode-icon {
+  width: clamp(54px,7vw,86px); height: clamp(54px,7vw,86px);
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: var(--border-std);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 5px 0 0 #bdaea0;
+  transition: transform 0.25s var(--ease-ac), box-shadow 0.25s var(--ease-ac);
+}
+.cnode:hover .cnode-icon {
+  transform: translateY(-4px);
+  box-shadow: 0 9px 0 0 #bdaea0;
+}
+.cnode-icon svg { width: 60%; height: 60%; display: block; }
+
+.cnode-label {
+  font-size: clamp(11px,1.3vw,14px); font-weight: 700;
+  color: var(--text-body);
+  background: rgba(255,255,255,0.85);
+  padding: 3px 10px; border-radius: 12px;
+  letter-spacing: 0.02em; white-space: nowrap;
+}
+
+/* 8 个轨道位置 — 中心居中类用 translate */
+.cnode-pos-1 { top: 7%;    left: 12%;   }
+.cnode-pos-2 { top: 4%;    left: 50%;  transform: translateX(-50%); }
+.cnode-pos-3 { top: 7%;    right: 12%;  }
+.cnode-pos-4 { top: 48%;   left: 4%;   transform: translateY(-50%); }
+.cnode-pos-5 { top: 48%;   right: 4%;  transform: translateY(-50%); }
+.cnode-pos-6 { bottom: 7%; left: 12%;   }
+.cnode-pos-7 { bottom: 4%; left: 50%;  transform: translateX(-50%); }
+.cnode-pos-8 { bottom: 7%; right: 12%;  }
+
+@media (max-width: 900px) {
+  .cnode-icon { width: clamp(44px,9vw,64px); height: clamp(44px,9vw,64px); }
+  .cnode-label { font-size: clamp(10px,2vw,12px); }
+}
+```
+
+### HTML 片段
+
+```html
+<section class="slide slide-constellation" data-slide="N">
+  <!-- 中央徽章 -->
+  <div class="constellation-center">
+    <div class="center-eyebrow"><!-- 章节小标签 --></div>
+    <h2 class="center-title"><!-- 主标题 --></h2>
+    <p class="center-caption"><!-- 1 行说明 --></p>
+  </div>
+
+  <!-- 4-8 个卫星节点；--i 序号从 0 递增控制入场顺序；cnode-pos-N 控制位置 -->
+  <div class="cnode cnode-pos-1">
+    <div class="cnode-inner" style="--i:0;">
+      <div class="cnode-icon">
+        <!-- 内联 SVG 图标。建议从下方"AC 内置图标库"复制（如 icon-chat / icon-camera） -->
+      </div>
+      <div class="cnode-label"><!-- 标签 ≤8 字 --></div>
+    </div>
+  </div>
+
+  <div class="cnode cnode-pos-3">
+    <div class="cnode-inner" style="--i:1;">
+      <div class="cnode-icon"><!-- SVG --></div>
+      <div class="cnode-label">…</div>
+    </div>
+  </div>
+
+  <div class="cnode cnode-pos-4">
+    <div class="cnode-inner" style="--i:2;">
+      <div class="cnode-icon"><!-- SVG --></div>
+      <div class="cnode-label">…</div>
+    </div>
+  </div>
+
+  <div class="cnode cnode-pos-5">
+    <div class="cnode-inner" style="--i:3;">
+      <div class="cnode-icon"><!-- SVG --></div>
+      <div class="cnode-label">…</div>
+    </div>
+  </div>
+
+  <div class="cnode cnode-pos-6">
+    <div class="cnode-inner" style="--i:4;">
+      <div class="cnode-icon"><!-- SVG --></div>
+      <div class="cnode-label">…</div>
+    </div>
+  </div>
+
+  <div class="cnode cnode-pos-8">
+    <div class="cnode-inner" style="--i:5;">
+      <div class="cnode-icon"><!-- SVG --></div>
+      <div class="cnode-label">…</div>
+    </div>
+  </div>
+</section>
+```
+
+**密度上限**：1 中央标题（≤12 字） + 可选 1 caption（≤24 字） + 4-8 个卫星节点（每节点 label ≤8 字）。4-6 个节点选用四角 + 四边的子集（推荐用 1/3/4/5/6/8 这 6 个）；7-8 个节点才用满 1-8 全部。`--i` 序号必须从 0 起、按视觉读顺序递增。
+
+---
+
+## LAYOUT S — Tabs Switcher（标签切换 / Tabs）
+
+**使用场景**：多面板同主题对照——"今日/本周/本月"、"方案 A / B / C"、"前端/后端/移动端"、"过去/现在/未来"。和 Comparison（Layout I）的区别：I 是两栏并排展示；S 是同一区域切换不同视角，强调"渐进发现"。
+**背景**：羊皮纸；标签栏使用 animal-island-ui Tabs 的标志性 active teal + 摇摆叶子角标。
+**交互依赖**：需要在 BASE 的 `<script>` 末尾追加"交互脚本钩子"section 里的 Tabs 片段（见下方）。
+
+### CSS
+
+```css
+.slide-tabs {
+  background: var(--bg-parchment);
+  padding: clamp(28px,4.5vh,52px) clamp(40px,6vw,80px) clamp(40px,6vh,72px);
+  justify-content: flex-start;
+}
+
+/* 标题 */
+.tabs-header {
+  margin-bottom: clamp(16px,2.5vh,28px);
+  opacity: 0; transform: translateY(12px);
+  transition: opacity 0.45s var(--ease-ac), transform 0.45s var(--ease-ac);
+}
+.slide.entered .tabs-header      { opacity: 1; transform: translateY(0); transition-delay: 0.05s; }
+.slide:not(.entered) .tabs-header { transition-delay: 0s; }
+
+.tabs-label {
+  font-size: clamp(10px,1.2vw,12px); font-weight: 700;
+  color: var(--accent-teal); letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.tabs-title {
+  font-size: clamp(24px,3.5vw,46px); font-weight: 900;
+  color: var(--text-primary); line-height: 1.15;
+}
+
+/* 标签栏 */
+.tabs-bar {
+  display: flex; flex-wrap: wrap;
+  gap: clamp(8px,1vw,14px);
+  padding: clamp(10px,1.5vh,16px) clamp(14px,1.5vw,20px);
+  background: rgba(255,255,255,0.6);
+  border: var(--border-std);
+  border-radius: var(--radius-card);
+  margin-bottom: clamp(14px,2.2vh,24px);
+  opacity: 0; transform: translateY(12px);
+  transition: opacity 0.45s var(--ease-ac), transform 0.45s var(--ease-ac);
+}
+.slide.entered .tabs-bar      { opacity: 1; transform: translateY(0); transition-delay: 0.15s; }
+.slide:not(.entered) .tabs-bar { transition-delay: 0s; }
+
+.tab-btn {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: clamp(8px,1.2vh,12px) clamp(16px,2vw,24px);
+  background: transparent; border: none;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-main);
+  font-size: clamp(13px,1.5vw,16px); font-weight: 600;
+  color: var(--text-body);
+  cursor: pointer;
+  transition: all 0.25s var(--ease-ac);
+}
+.tab-btn:hover { background: rgba(25,200,185,0.12); }
+.tab-btn.active {
+  background: #0CC0B5;
+  color: #FFF9E3;
+  font-weight: 700;
+  box-shadow: 0 3px 0 0 #099a92;
+}
+
+.tab-indicator {
+  display: inline-block;
+  font-size: 14px; line-height: 1;
+  transition: transform 0.25s var(--ease-ac);
+}
+.tab-btn.active .tab-indicator { transform: scale(1.2); }
+
+/* active 标签右上角摇摆叶子（复刻 Tabs.tabLeaf）*/
+.tab-leaf {
+  position: absolute;
+  top: -8px; right: -6px;
+  width: clamp(16px,1.8vw,22px); height: clamp(16px,1.8vw,22px);
+  color: var(--green);
+  opacity: 0;
+  transition: opacity 0.2s var(--ease-ac);
+  pointer-events: none;
+}
+.tab-btn.active .tab-leaf {
+  opacity: 1;
+  animation: tabLeafWiggle 2s ease-in-out infinite;
+}
+@keyframes tabLeafWiggle {
+  0%,100% { transform: rotate(0deg); }
+  25%     { transform: rotate(-10deg); }
+  75%     { transform: rotate(10deg); }
+}
+
+/* 面板容器：所有面板叠加，只显示 active */
+.tabs-panels {
+  position: relative;
+  flex: 1; min-height: 0;
+}
+.tab-panel {
+  position: absolute; inset: 0;
+  opacity: 0; transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease-ac), transform 0.3s var(--ease-ac);
+}
+.tab-panel.active {
+  opacity: 1; transform: translateY(0);
+  pointer-events: all;
+}
+
+/* 单面板内容：标题 + 卡片网格 */
+.panel-title {
+  font-size: clamp(18px,2.2vw,26px); font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: clamp(10px,1.5vh,16px);
+}
+.panel-grid {
+  display: grid; gap: clamp(10px,1.5vw,16px);
+  grid-template-columns: repeat(2,1fr);
+}
+.panel-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: clamp(12px,1.5vh,18px) clamp(14px,1.6vw,20px);
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: var(--border-std);
+}
+.panel-icon {
+  width: clamp(24px,2.5vw,30px); height: clamp(24px,2.5vw,30px);
+  border-radius: 8px;
+  background: var(--accent-teal);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 3px 0 0 var(--accent-teal-a);
+  flex-shrink: 0;
+}
+.panel-item-text {
+  font-size: clamp(13px,1.5vw,16px); font-weight: 600;
+  color: var(--text-body); line-height: 1.5;
+}
+.panel-item-text strong { color: var(--text-primary); font-weight: 800; }
+
+@media (max-width: 768px) {
+  .panel-grid { grid-template-columns: 1fr; }
+}
+```
+
+### HTML 片段
+
+```html
+<section class="slide slide-tabs" data-slide="N">
+  <div class="tabs-header">
+    <div class="tabs-label"><!-- 顶部小标签 --></div>
+    <h2 class="tabs-title"><!-- 主标题 --></h2>
+  </div>
+
+  <!-- 标签栏：2-4 个 .tab-btn；首个加 .active -->
+  <div class="tabs-bar">
+    <button type="button" class="tab-btn active" data-tab="0">
+      <span class="tab-indicator">●</span>
+      <span><!-- 标签 1 文本 --></span>
+      <svg class="tab-leaf" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"/></svg>
+    </button>
+    <button type="button" class="tab-btn" data-tab="1">
+      <span class="tab-indicator">○</span>
+      <span><!-- 标签 2 --></span>
+      <svg class="tab-leaf" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"/></svg>
+    </button>
+    <button type="button" class="tab-btn" data-tab="2">
+      <span class="tab-indicator">○</span>
+      <span><!-- 标签 3 --></span>
+      <svg class="tab-leaf" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"/></svg>
+    </button>
+  </div>
+
+  <!-- 面板容器：每个 .tab-panel 与上方按钮顺序对应；首个加 .active -->
+  <div class="tabs-panels">
+    <div class="tab-panel active">
+      <h3 class="panel-title"><!-- 面板 1 副标题 --></h3>
+      <div class="panel-grid">
+        <!-- 2-4 个 panel-item -->
+        <div class="panel-item">
+          <div class="panel-icon">
+            <svg width="14" height="14" viewBox="0 0 13 13" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 7 5 10 11 3"/></svg>
+          </div>
+          <div class="panel-item-text">
+            <!-- 要点文本。<strong> 高亮关键词 -->
+          </div>
+        </div>
+        <!-- 重复至多 4 个 -->
+      </div>
+    </div>
+
+    <div class="tab-panel">
+      <h3 class="panel-title"><!-- 面板 2 副标题 --></h3>
+      <div class="panel-grid"><!-- 2-4 个 panel-item --></div>
+    </div>
+
+    <div class="tab-panel">
+      <h3 class="panel-title"><!-- 面板 3 副标题 --></h3>
+      <div class="panel-grid"><!-- 2-4 个 panel-item --></div>
+    </div>
+  </div>
+</section>
+```
+
+**密度上限**：1 标题 + 2-4 个 tab + 每个 panel 内 1 副标题 + 2-4 个 panel-item（每 item ≤40 字）。每个 panel 占据相同空间，所以所有 panel 的内容量必须均衡——若某 panel 远超其他，请拆为多张 Tabs 幻灯片。所有 tab 必须有匹配的 panel；首个 tab/panel 必须加 `.active`。
+
+---
+
+## LAYOUT W — Collapse Stack（渐次展开 / Accordion）
+
+**使用场景**：渐进披露内容、步骤详解、复盘要点、深度问题清单。和 FAQ（Layout P）的区别：P 一次性展示所有 Q+A；W 默认折叠，点击逐项展开，强调"逐步揭示"的节奏，适合内容较多但读者需要节奏感的场景。
+**背景**：羊皮纸；用 animal-island-ui Collapse 组件的 `grid-template-rows: 0fr → 1fr` 纯 CSS 展开动画，无需 JS 测量高度。
+**交互依赖**：需要在 BASE 的 `<script>` 末尾追加"交互脚本钩子"section 里的 Collapse 片段（见下方）。
+
+### CSS
+
+```css
+.slide-collapse {
+  background: var(--bg-parchment);
+  padding: clamp(28px,4.5vh,52px) clamp(40px,7vw,140px) clamp(40px,6vh,72px);
+  justify-content: flex-start;
+}
+
+.collapse-header {
+  margin-bottom: clamp(18px,3vh,32px);
+  opacity: 0; transform: translateY(12px);
+  transition: opacity 0.45s var(--ease-ac), transform 0.45s var(--ease-ac);
+}
+.slide.entered .collapse-header      { opacity: 1; transform: translateY(0); transition-delay: 0.05s; }
+.slide:not(.entered) .collapse-header { transition-delay: 0s; }
+
+.collapse-label { font-size: clamp(10px,1.2vw,12px); font-weight: 700; color: var(--accent-teal); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
+.collapse-title { font-size: clamp(24px,3.5vw,46px); font-weight: 900; color: var(--text-primary); line-height: 1.15; }
+
+.collapse-list {
+  display: flex; flex-direction: column;
+  gap: clamp(10px,1.5vh,16px);
+}
+
+.collapse-item {
+  background: var(--bg-card);
+  border: var(--border-std);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  opacity: 0; transform: translateY(14px);
+  transition:
+    opacity 0.4s var(--ease-ac),
+    transform 0.4s var(--ease-ac),
+    border-color 0.25s var(--ease-ac);
+}
+.slide.entered .collapse-item {
+  opacity: 1; transform: translateY(0);
+  transition-delay: calc(0.15s + var(--i,0) * 0.08s);
+}
+.slide:not(.entered) .collapse-item { transition-delay: 0s; }
+
+.collapse-item.expanded { border-color: var(--accent-teal); }
+
+/* 题目栏（可点击）*/
+.collapse-q {
+  display: flex; align-items: center;
+  gap: clamp(12px,1.5vw,16px);
+  width: 100%;
+  padding: clamp(14px,2vh,20px) clamp(18px,2.5vw,28px);
+  background: transparent; border: none;
+  text-align: left; cursor: pointer;
+  font-family: var(--font-main);
+}
+
+/* +/− 圆形图标 — JS 切换 .expanded 时同时切换文本内容 */
+.collapse-q-icon {
+  width: clamp(26px,2.8vw,32px); height: clamp(26px,2.8vw,32px);
+  border-radius: 50%;
+  background: var(--accent-teal); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(16px,1.8vw,20px); font-weight: 900; line-height: 1;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(25,200,185,0.3);
+  transition:
+    background-color 0.25s var(--ease-ac),
+    transform 0.3s var(--ease-ac);
+}
+.collapse-item.expanded .collapse-q-icon {
+  background: var(--accent-teal-a);
+  transform: rotate(180deg);
+}
+
+.collapse-q-text {
+  flex: 1;
+  font-size: clamp(14px,1.7vw,18px); font-weight: 600;
+  color: var(--text-primary); line-height: 1.4;
+}
+
+/* 右侧叶子装饰 — 展开时旋转 45deg */
+.collapse-leaf {
+  color: var(--green); opacity: 0.45;
+  flex-shrink: 0;
+  transition: opacity 0.25s var(--ease-ac), transform 0.3s var(--ease-ac);
+}
+.collapse-item.expanded .collapse-leaf {
+  opacity: 1; transform: rotate(45deg);
+}
+
+/* 答案包裹：grid-template-rows 0fr → 1fr 动画 */
+.collapse-a {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows 0.32s var(--ease-ac);
+}
+.collapse-item.expanded .collapse-a { grid-template-rows: 1fr; }
+
+.collapse-a-inner {
+  overflow: hidden;
+  padding: 0 clamp(18px,2.5vw,28px);
+  font-size: clamp(13px,1.5vw,16px); font-weight: 500;
+  color: var(--text-body); line-height: 1.7;
+  transition: padding 0.25s var(--ease-ac);
+}
+.collapse-item.expanded .collapse-a-inner {
+  padding-bottom: clamp(16px,2.2vh,24px);
+}
+.collapse-a-inner p + p { margin-top: clamp(6px,1vh,10px); }
+.collapse-a-inner strong { color: var(--text-primary); font-weight: 700; }
+.collapse-a-inner ul {
+  margin: clamp(6px,1vh,10px) 0;
+  padding-left: clamp(18px,2.5vw,28px);
+}
+.collapse-a-inner li { margin-bottom: 4px; }
+```
+
+### HTML 片段
+
+```html
+<section class="slide slide-collapse" data-slide="N">
+  <div class="collapse-header">
+    <div class="collapse-label"><!-- 顶部小标签 --></div>
+    <h2 class="collapse-title"><!-- 主标题 --></h2>
+  </div>
+
+  <div class="collapse-list">
+    <!-- 每个 collapse-item；--i 控制入场顺序（从 0 起）；首项可选加 .expanded 让其默认展开 -->
+    <div class="collapse-item expanded" style="--i:0;">
+      <button class="collapse-q" type="button" aria-expanded="true">
+        <span class="collapse-q-icon">−</span>
+        <span class="collapse-q-text"><!-- 问题 / 步骤标题 --></span>
+        <svg class="collapse-leaf" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path fill="currentColor" d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"/>
+        </svg>
+      </button>
+      <div class="collapse-a">
+        <div class="collapse-a-inner">
+          <p><!-- 答案 / 详情段落 1。<strong> 高亮关键词 --></p>
+          <ul>
+            <li><!-- 子要点 --></li>
+            <li><!-- 子要点 --></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="collapse-item" style="--i:1;">
+      <button class="collapse-q" type="button" aria-expanded="false">
+        <span class="collapse-q-icon">+</span>
+        <span class="collapse-q-text">…</span>
+        <svg class="collapse-leaf" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path fill="currentColor" d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"/>
+        </svg>
+      </button>
+      <div class="collapse-a">
+        <div class="collapse-a-inner">
+          <p>…</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 重复至多 5 个 collapse-item，每个 --i 顺序递增 -->
+  </div>
+</section>
+```
+
+**密度上限**：1 标题 + 3-5 个 collapse-item（每 item：问题 ≤30 字 + 答案 1-2 段或 ≤4 条 li 列表，单 item 答案展开后视觉高度 ≤30vh）。首项推荐加 `.expanded` 让用户进入时已能看到一份示例展开内容。
+
+---
+
+## LAYOUT T — Settings Panel（配置面板 / Options Mockup）
+
+**使用场景**：功能开关清单、特性对比、产品规格表、"选择你的路线"、人格 / 角色偏好。和 Card Grid（Layout B）的区别：B 是平铺枚举；T 是**带控件状态**的可交互拟态，强调"这些选项可以被配置"，把"参数 / 决策点"具象化。
+**背景**：羊皮纸；中心放置一张"设置卡片"，内含 3-6 条 settings-row，每行 = 图标 + 标签 + 描述 + 控件。
+**复刻组件**：Switch、Checkbox、Select 的 AC 视觉精确还原（颜色、阴影、动画来自仓库源样式）。
+**交互依赖**：需要在 BASE 的 `<script>` 末尾追加"交互脚本钩子"section 里的 Settings 片段（Switch/Checkbox/Segmented 都能点击切换）。
+
+### CSS
+
+```css
+.slide-settings {
+  background: var(--bg-parchment);
+  padding: clamp(32px,5vh,60px) clamp(40px,6vw,80px);
+  justify-content: center; align-items: center;
+}
+
+.settings-header {
+  text-align: center;
+  margin-bottom: clamp(18px,3vh,28px);
+  opacity: 0; transform: translateY(12px);
+  transition: opacity 0.45s var(--ease-ac), transform 0.45s var(--ease-ac);
+}
+.slide.entered .settings-header      { opacity: 1; transform: translateY(0); transition-delay: 0.05s; }
+.slide:not(.entered) .settings-header { transition-delay: 0s; }
+
+.settings-label   { font-size: clamp(10px,1.2vw,12px); font-weight: 700; color: var(--accent-teal); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
+.settings-title   { font-size: clamp(24px,3.5vw,42px); font-weight: 900; color: var(--text-primary); line-height: 1.15; }
+.settings-caption { margin-top: 6px; font-size: clamp(12px,1.4vw,15px); font-weight: 500; color: var(--text-body); line-height: 1.45; }
+
+/* 设置卡片 */
+.settings-card {
+  width: min(720px, 90%);
+  background: var(--bg-card);
+  border: var(--border-std);
+  border-radius: var(--radius-card);
+  padding: clamp(16px,2.5vh,24px) clamp(20px,3vw,32px);
+  box-shadow: var(--shadow-card);
+  opacity: 0; transform: translateY(16px);
+  transition: opacity 0.5s var(--ease-ac), transform 0.5s var(--ease-ac);
+}
+.slide.entered .settings-card      { opacity: 1; transform: translateY(0); transition-delay: 0.15s; }
+.slide:not(.entered) .settings-card { transition-delay: 0s; }
+
+/* 每行设置 */
+.settings-row {
+  display: flex; align-items: center;
+  gap: clamp(12px,1.5vw,18px);
+  padding: clamp(10px,1.4vh,16px) 0;
+  border-bottom: 2px dashed rgba(159,146,125,0.35);
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 0.4s var(--ease-ac), transform 0.4s var(--ease-ac);
+}
+.settings-row:last-child { border-bottom: none; }
+.slide.entered .settings-row {
+  opacity: 1; transform: translateY(0);
+  transition-delay: calc(0.25s + var(--i,0) * 0.08s);
+}
+.slide:not(.entered) .settings-row { transition-delay: 0s; }
+
+.row-icon {
+  width: clamp(36px,4vw,46px); height: clamp(36px,4vw,46px);
+  border-radius: 12px;
+  background: var(--card-blue);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 3px 0 0 rgba(0,0,0,0.1);
+}
+
+.row-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.row-label { font-size: clamp(14px,1.6vw,17px); font-weight: 700; color: var(--text-primary); line-height: 1.3; }
+.row-desc  { font-size: clamp(11px,1.2vw,13px); font-weight: 500; color: var(--text-muted); line-height: 1.4; }
+
+/* ── AC Switch（拨片）── */
+.ac-switch {
+  position: relative;
+  display: inline-flex; align-items: center;
+  width: clamp(46px,5vw,56px); height: clamp(24px,2.6vh,28px);
+  padding: 0;
+  background: #d4c9b4;
+  border: 2.5px solid #c4b89e;
+  border-radius: 50px;
+  cursor: pointer; flex-shrink: 0;
+  box-shadow: inset 0 2px 4px rgba(114,93,66,0.15);
+  transition: all 0.25s var(--ease-ac);
+}
+.ac-switch:hover         { border-color: #a89878; }
+.ac-switch.on            { background: #86d67a; border-color: #6fba2c; box-shadow: inset 0 2px 4px rgba(90,158,30,0.2); }
+.ac-switch.on:hover      { border-color: #5a9e1e; background: #7ccc70; }
+.ac-switch-handle {
+  position: absolute; top: 50%; left: 1px;
+  transform: translateY(-50%);
+  width: clamp(18px,2vw,21px); height: clamp(18px,2vw,21px);
+  background: rgb(247, 243, 223);
+  border: 2.5px solid #c4b89e;
+  border-radius: 50%;
+  transition: all 0.25s var(--ease-ac);
+}
+.ac-switch.on .ac-switch-handle { left: calc(100% - clamp(20px,2.2vw,24px)); border-color: #6fba2c; }
+
+/* ── AC Checkbox（勾选框组）── */
+.ac-checkboxes { display: flex; gap: clamp(10px,1.5vw,16px); flex-wrap: wrap; }
+.ac-checkbox {
+  display: inline-flex; align-items: center;
+  gap: 8px; cursor: pointer; user-select: none;
+}
+.ac-checkbox-box {
+  width: clamp(20px,2.2vw,24px); height: clamp(20px,2.2vw,24px);
+  background: rgb(247, 243, 223);
+  border: 2px solid #c4b89e;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s var(--ease-ac);
+}
+.ac-checkbox.on .ac-checkbox-box {
+  background: var(--accent-teal);
+  border-color: var(--accent-teal-a);
+}
+.ac-checkbox-mark {
+  width: 12px; height: 12px; color: #fff;
+  opacity: 0; transform: scale(0.4);
+  transition: opacity 0.2s var(--ease-ac), transform 0.2s var(--ease-ac);
+}
+.ac-checkbox.on .ac-checkbox-mark { opacity: 1; transform: scale(1); }
+.ac-checkbox-label { font-size: clamp(12px,1.3vw,14px); font-weight: 600; color: var(--text-body); }
+
+/* ── AC Segmented（3 段切换）── */
+.ac-segmented {
+  display: inline-flex;
+  padding: 3px;
+  background: rgba(159,146,125,0.15);
+  border-radius: 50px;
+  gap: 2px;
+}
+.ac-segmented-btn {
+  padding: clamp(5px,0.8vh,7px) clamp(10px,1.4vw,16px);
+  background: transparent; border: none; border-radius: 50px;
+  font-family: var(--font-main);
+  font-size: clamp(11px,1.2vw,13px); font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-ac);
+}
+.ac-segmented-btn.on {
+  background: var(--accent-yellow);
+  color: var(--text-primary);
+  box-shadow: 0 2px 0 0 var(--accent-yellow-d);
+}
+
+/* ── AC Value Chip（只读"当前值"展示，模拟 Select trigger）── */
+.ac-value-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: clamp(6px,0.9vh,9px) clamp(12px,1.5vw,18px);
+  background: #fff;
+  border: 2px solid #e8dcc8;
+  border-radius: 12px;
+  font-size: clamp(13px,1.5vw,15px); font-weight: 700;
+  color: var(--text-body);
+  flex-shrink: 0;
+}
+.ac-value-chip-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-teal); }
+```
+
+### HTML 片段
+
+```html
+<section class="slide slide-settings" data-slide="N">
+  <div class="settings-header">
+    <div class="settings-label"><!-- 顶部小标签 --></div>
+    <h2 class="settings-title"><!-- 主标题 --></h2>
+    <p class="settings-caption"><!-- 1 行说明 --></p>
+  </div>
+
+  <div class="settings-card">
+    <!-- ROW 1：Switch（开关）-->
+    <div class="settings-row" style="--i:0;">
+      <div class="row-icon" style="background: var(--card-teal);">
+        <!-- 内联 SVG icon（22×22，stroke="#fff"），可用"AC 内置图标库"或"常用内联 SVG 图标库" -->
+      </div>
+      <div class="row-text">
+        <div class="row-label"><!-- 开关项标题 --></div>
+        <div class="row-desc"><!-- 一行说明 --></div>
+      </div>
+      <button type="button" class="ac-switch on" aria-pressed="true">
+        <span class="ac-switch-handle"></span>
+      </button>
+    </div>
+
+    <!-- ROW 2：Checkbox 多选 -->
+    <div class="settings-row" style="--i:1;">
+      <div class="row-icon" style="background: var(--card-yellow);"><!-- icon --></div>
+      <div class="row-text">
+        <div class="row-label"><!-- 多选标题 --></div>
+        <div class="row-desc"><!-- 描述 --></div>
+      </div>
+      <div class="ac-checkboxes">
+        <div class="ac-checkbox on">
+          <div class="ac-checkbox-box">
+            <svg class="ac-checkbox-mark" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 7 5 10 11 3"/></svg>
+          </div>
+          <span class="ac-checkbox-label">选项 A</span>
+        </div>
+        <div class="ac-checkbox">
+          <div class="ac-checkbox-box">
+            <svg class="ac-checkbox-mark" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 7 5 10 11 3"/></svg>
+          </div>
+          <span class="ac-checkbox-label">选项 B</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 3：Segmented（单选 3 段）-->
+    <div class="settings-row" style="--i:2;">
+      <div class="row-icon" style="background: var(--card-pink);"><!-- icon --></div>
+      <div class="row-text">
+        <div class="row-label"><!-- 单选 segmented 标题 --></div>
+        <div class="row-desc"><!-- 描述 --></div>
+      </div>
+      <div class="ac-segmented">
+        <button type="button" class="ac-segmented-btn">节 能</button>
+        <button type="button" class="ac-segmented-btn on">标 准</button>
+        <button type="button" class="ac-segmented-btn">性 能</button>
+      </div>
+    </div>
+
+    <!-- ROW 4：Value Chip（只读"当前值"展示）-->
+    <div class="settings-row" style="--i:3;">
+      <div class="row-icon" style="background: var(--card-orange);"><!-- icon --></div>
+      <div class="row-text">
+        <div class="row-label"><!-- 只读项标题 --></div>
+        <div class="row-desc"><!-- 描述 --></div>
+      </div>
+      <div class="ac-value-chip">
+        <span class="ac-value-chip-dot"></span>
+        <span><!-- 当前值文字 --></span>
+      </div>
+    </div>
+  </div>
+</section>
+```
+
+**密度上限**：1 标题 + 可选 1 caption + **3-6 条 settings-row**。每行控件**只能选一种**（Switch / Checkboxes / Segmented / Value chip）；同一卡片内推荐混用 2-4 种控件类型，给读者"这是真的可配置界面"的感觉。`--i` 序号从 0 顺序递增。
+
+---
+
+## 氛围工具（Ambient Tools — 可叠加在任意布局上）
+
+下面 3 个不是新布局，是可以**任意叠加**到现有幻灯片上的装饰组件。
+
+### 工具 1 — Time HUD（角落实时时钟）
+
+**用途**：发布会现场感、Live 演示、午间汇报。固定在右上角，永远显示真实当前时间。
+**视觉**：羊皮纸渐变底 + 浅棕双线边框，左侧 weekday + month-day，右侧大字时钟（冒号闪烁）。
+**对应组件**：精确复刻 `time.module.less`。
+
+```css
+/* 追加到 BASE <style> 末尾 */
+.ambient-time {
+  position: fixed;
+  top: clamp(14px,2.5vh,28px);
+  right: clamp(14px,2vw,28px);
+  display: inline-flex; gap: clamp(10px,1.4vw,20px);
+  align-items: center;
+  padding: clamp(8px,1.2vh,12px) clamp(14px,2vw,24px);
+  background: linear-gradient(180deg, #fff 0%, #f8f8f0 100%);
+  border: 3px solid #d4cfc3;
+  border-radius: 14px;
+  z-index: 90;
+  pointer-events: none;
+}
+.ambient-time-date {
+  display: flex; flex-direction: column; align-items: center;
+  padding-right: clamp(10px,1.4vw,20px);
+  border-right: 3px solid rgba(159,146,125,0.35);
+}
+.ambient-time-weekday {
+  color: #6fba2c; font-weight: 900;
+  font-size: clamp(10px,1.2vw,13px);
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+.ambient-time-monthday {
+  color: #8b7355; font-weight: 800;
+  font-size: clamp(15px,1.8vw,21px);
+}
+.ambient-time-clock {
+  display: flex; align-items: center;
+  color: #8b7355; font-weight: 900;
+  font-size: clamp(28px,3.5vw,42px);
+  letter-spacing: 2px; line-height: 1;
+}
+.ambient-time-colon {
+  position: relative; top: -0.08em; margin: 0 1px;
+  animation: ambientBlink 1s step-end infinite;
+}
+@keyframes ambientBlink { 50% { opacity: 0; } }
+```
+
+```html
+<!-- 紧贴在 <div class="deck"> 之后（与导航箭头同级），整份 deck 共享一个 HUD -->
+<div class="ambient-time" id="ambient-time" aria-hidden="true">
+  <div class="ambient-time-date">
+    <span class="ambient-time-weekday">SAT</span>
+    <span class="ambient-time-monthday">May 17</span>
+  </div>
+  <div class="ambient-time-clock">
+    <span class="ambient-time-hh">12</span><span class="ambient-time-colon">:</span><span class="ambient-time-mm">34</span>
+  </div>
+</div>
+```
+
+```javascript
+// 追加到 BASE <script> 末尾
+(function(){
+  const el = document.getElementById('ambient-time');
+  if (!el) return;
+  const wkEl = el.querySelector('.ambient-time-weekday');
+  const mdEl = el.querySelector('.ambient-time-monthday');
+  const hhEl = el.querySelector('.ambient-time-hh');
+  const mmEl = el.querySelector('.ambient-time-mm');
+  const days   = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function tick(){
+    const d = new Date();
+    wkEl.textContent = days[d.getDay()];
+    mdEl.textContent = months[d.getMonth()] + ' ' + d.getDate();
+    hhEl.textContent = String(d.getHours()).padStart(2,'0');
+    mmEl.textContent = String(d.getMinutes()).padStart(2,'0');
+  }
+  tick(); setInterval(tick, 1000);
+})();
+```
+
+### 工具 2 — Game Cursor（AC 手指光标）
+
+**用途**：把整份演示变成"游戏画面"——尤其搭配 Layout R（对话框）/ Layout Q（岛屿场景）效果拔群。
+**视觉**：黄色填充 + 棕色描边的手指指针光标，光标热点 (4,0)（左上角偏内一点）。
+**对应组件**：复刻 Cursor.module.less，把图片路径换成内联 data-URI SVG。
+
+```css
+/* 追加到 BASE <style> 末尾 */
+.deck.with-ac-cursor,
+.deck.with-ac-cursor * {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><path d="M6 2 L6 19 L10 15 L13 22 L16.5 20.5 L13.5 14 L19 14 Z" fill="%23ffcc00" stroke="%23725d42" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg>') 4 0, auto !important;
+}
+```
+
+**开启方式**：在 `<div class="deck">` 上加 `with-ac-cursor` 类即可：
+
+```html
+<div class="deck with-ac-cursor" id="deck">
+  ...
+</div>
+```
+
+### 工具 3 — Divider 花纹（5 种横向装饰条）
+
+**用途**：在 Bullets / Quote / FAQ 等内容型布局里**章节之间**做视觉分隔。比纯线条更有 AC 手作感。
+**视觉**：12px 高的横向装饰带；4 种圆点花纹（brown / teal / white / yellow）+ 1 种波浪（wave-yellow）。
+**对应组件**：复刻 Divider.module.less 的 5 个 type，把图片资源改成 CSS gradient / data-URI SVG。
+
+```css
+/* 追加到 BASE <style> 末尾 */
+.ac-divider {
+  width: 100%; height: 12px;
+  margin: clamp(10px,1.5vh,20px) 0;
+  background-position: center;
+  background-repeat: repeat-x;
+}
+.ac-divider-brown   { background-image: radial-gradient(circle, #794f27 1.8px, transparent 2px); background-size: 14px 12px; }
+.ac-divider-teal    { background-image: radial-gradient(circle, #19c8b9 1.8px, transparent 2px); background-size: 14px 12px; }
+.ac-divider-white   { background-image: radial-gradient(circle, #ffffff 1.8px, transparent 2px); background-size: 14px 12px; }
+.ac-divider-yellow  { background-image: radial-gradient(circle, #ffcc00 1.8px, transparent 2px); background-size: 14px 12px; }
+.ac-divider-wave-yellow {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 12" preserveAspectRatio="none"><path d="M0 6 Q10 0 20 6 T40 6" stroke="%23ffcc00" stroke-width="3" fill="none" stroke-linecap="round"/></svg>');
+  background-size: 40px 12px;
+}
+```
+
+```html
+<!-- 在内容块之间插入 -->
+<div class="ac-divider ac-divider-brown" aria-hidden="true"></div>
+<div class="ac-divider ac-divider-teal" aria-hidden="true"></div>
+<div class="ac-divider ac-divider-white" aria-hidden="true"></div>
+<div class="ac-divider ac-divider-yellow" aria-hidden="true"></div>
+<div class="ac-divider ac-divider-wave-yellow" aria-hidden="true"></div>
+```
+
+> 默认 `brown` 用于羊皮纸底；`white` 专门用于深色背景（如 Cover 的绿底）；`wave-yellow` 是"庆祝/章节"语义最强的一款，节省着用。
+
+---
+
+## 交互脚本钩子（Layout S / W 必需）
+
+Layout S 和 Layout W 需要这两段 JS。把它们**追加到 BASE 的 `<script>` 块末尾**（即 `enter(slides[0]);` 和 `document.addEventListener('keydown', ...)` 之间或之后均可），整份输出依然是单 HTML、零外部依赖。
+
+```javascript
+// ── LAYOUT S: 标签切换 ─────────────────────────
+document.querySelectorAll('.slide-tabs').forEach(slide => {
+  const btns   = slide.querySelectorAll('.tab-btn');
+  const panels = slide.querySelectorAll('.tab-panel');
+  btns.forEach((btn, idx) => {
+    btn.addEventListener('click', () => {
+      btns.forEach((b, i) => {
+        b.classList.toggle('active', i === idx);
+        const ind = b.querySelector('.tab-indicator');
+        if (ind) ind.textContent = (i === idx) ? '●' : '○';
+      });
+      panels.forEach((p, i) => p.classList.toggle('active', i === idx));
+    });
+  });
+});
+
+// ── LAYOUT W: 折叠展开 ─────────────────────────
+document.querySelectorAll('.collapse-q').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.collapse-item');
+    const isExpanded = item.classList.toggle('expanded');
+    const icon = btn.querySelector('.collapse-q-icon');
+    if (icon) icon.textContent = isExpanded ? '−' : '+';
+    btn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+  });
+});
+
+// ── LAYOUT T: 配置控件（Switch / Checkbox / Segmented）─
+document.querySelectorAll('.ac-switch').forEach(sw => {
+  sw.addEventListener('click', () => {
+    const on = sw.classList.toggle('on');
+    sw.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+});
+document.querySelectorAll('.ac-checkbox').forEach(cb => {
+  cb.addEventListener('click', () => cb.classList.toggle('on'));
+});
+document.querySelectorAll('.ac-segmented').forEach(seg => {
+  seg.querySelectorAll('.ac-segmented-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      seg.querySelectorAll('.ac-segmented-btn').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+    });
+  });
+});
+```
+
+> 这几段在没有相应布局的演示文稿中也无害（`querySelectorAll` 命中 0 个元素时直接返回）。可以无脑加进所有输出，省去判断。
+
+---
+
+## AC 内置图标库（10 枚 / 源自 animal-island-ui）
+
+**何时使用**：Layout U（图标星座）的节点图标、Card Grid（Layout B）卡片图标、NookPhone Showcase（Layout O）九宫格。这 10 个图标是 animal-island-ui 官方 `ICON_LIST`（NookPhone 应用图标），自带 AC 多色填充，无需 `stroke`。
+
+**通用使用方式**：直接把对应 `<svg>` 嵌进你的容器即可（推荐外层尺寸用 `width: clamp(...)` 自动适配；svg 自身 `viewBox` 已设好不要改）。
+
+```html
+<!-- icon-chat（聊天气泡，浅米底 + 三个深色点 + 粉色挂坠）-->
+<svg viewBox="0 0 80 67" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M23.6992 9.64355C12.1012 9.64355 2.69922 19.0456 2.69922 30.6436V38.4145C2.69922 50.0125 12.1012 59.4145 23.6992 59.4145H34.8603L40.1597 66.2754C40.56 66.7937 41.3422 66.7937 41.7425 66.2754L47.042 59.4145H58.203C69.801 59.4145 79.203 50.0124 79.203 38.4145V30.6436C79.203 19.0456 69.801 9.64355 58.203 9.64355H23.6992Z" fill="#F5F1E6"/><circle cx="20.8502" cy="35.8375" r="5.78961" fill="#5E483B"/><circle cx="40.4293" cy="35.8375" r="5.78961" fill="#5E483B"/><circle cx="60.0084" cy="35.8375" r="5.78961" fill="#5E483B"/><rect width="33.5693" height="19.2872" rx="9" fill="#F583A4"/></svg>
+
+<!-- icon-camera（相机：深棕机身 + 米白镜头 + 紫色闪光）-->
+<svg viewBox="0 0 85 66" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5.94434" y="4.92773" width="15.5386" height="16.1112" rx="1.78001" fill="#FF66AD"/><path fill-rule="evenodd" clip-rule="evenodd" d="M30.585 0H54.7227C56.8954 0.0509226 61.251 1.72121 61.2917 7.99496C61.2917 10.9719 62.9303 12.1182 64.1666 12.4312H70.5935C78.4581 12.4312 84.8336 18.8067 84.8336 26.6712V51.0976C84.8336 58.9622 78.4581 65.3377 70.5935 65.3377H14.2401C6.37551 65.3377 0 58.9622 0 51.0976V26.6712C0 18.8067 6.37549 12.4312 14.2401 12.4312H21.3539C22.5467 12.1169 24.1915 11.0856 24.1915 8.63043C24.1915 4.37225 26.5803 0 30.585 0Z" fill="#4C3C33"/><path d="M47.2051 7.81382H38.5511C36.0335 8.96867 36.4298 12.6061 37.9934 12.6061H48.3218C50.0712 10.9311 48.3218 7.69332 47.2051 7.81382Z" fill="#F9F6E5"/><ellipse cx="42.9035" cy="39.4683" rx="19.7658" ry="19.7652" fill="#F9F6E5"/><path fill-rule="evenodd" clip-rule="evenodd" d="M57.5033 39.468C57.5033 47.5323 50.9659 54.0697 42.9016 54.0697C34.8372 54.0697 28.2998 47.5323 28.2998 39.468C28.2998 31.4036 34.8372 24.8662 42.9016 24.8662C50.9659 24.8662 57.5033 31.4036 57.5033 39.468ZM53.8936 40.9628C53.8936 42.2078 52.8844 43.2171 51.6394 43.2171C50.3945 43.2171 49.3852 42.2078 49.3852 40.9628C49.3852 39.7179 50.3945 38.7086 51.6394 38.7086C52.8844 38.7086 53.8936 39.7179 53.8936 40.9628ZM43.9772 28.6918C42.996 28.6022 41.2035 28.6918 41.0334 30.4128C40.8416 32.3543 42.5052 32.8329 43.9772 32.8866C44.9658 32.9228 47.5574 33.3182 49.1556 35.9975C49.4861 36.571 50.5237 37.5062 52.0306 36.6586C53.5375 35.811 52.4715 33.7908 51.7502 32.8866C50.94 31.6534 48.251 29.0878 43.9772 28.6918Z" fill="#9364DE"/></svg>
+
+<!-- icon-design（调色板 + 画笔，AC 设计画板）-->
+<svg viewBox="0 0 98 72" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.335777 10.1492C4.89272 4.90487 15.8067 0.905744 20.33 0C22.2521 5.66649 23.6648 7.58058 31.4973 8.31653C39.3299 9.05248 42.7776 1.90327 42.7776 0.0974021C46.7848 1.07591 49.301 2.84653 56.5233 6.71395C62.3011 9.80789 62.955 12.1036 62.5598 12.8647C59.1326 19.2015 54.8059 25.4431 52.631 25.4431C51.1506 25.4431 49.4913 24.2734 49.0295 22.7651C48.5678 21.2568 46.998 21.0413 47.7675 23.2576C48.537 25.4739 51.2217 42.2647 51.1609 42.3863C51.1 42.508 40.1516 45.4883 31.8187 45.8533C23.4858 46.2182 11.9884 42.9227 10.9875 39.6866C9.98669 36.4505 13.2561 26.1083 14.4572 23.039C15.418 20.5836 14.0568 21.7046 13.2561 22.572C12.3154 23.6242 10.0697 25.5898 8.61345 25.035C7.15721 24.4803 2.36158 16.8418 0.145802 13.092C-0.00407374 12.3316 -0.155879 11.1351 0.335777 10.1492Z" fill="#F7F3E1"/><circle cx="31.2875" cy="15.763" r="3.88316" fill="#59433A"/><circle cx="31.2875" cy="25.8568" r="3.88316" fill="#59433A"/><path fill-rule="evenodd" clip-rule="evenodd" d="M72.9897 8.06671L43.1696 38.9087L43.1757 38.9148C42.5864 39.3622 41.205 40.9237 40.3256 43.6513C39.4422 46.3915 36.0168 58.2743 34.4145 63.8732C33.7432 66.3763 33.9857 71.3165 40.3256 71.053C46.4057 69.5775 56.89 66.0908 61.3721 64.5319C62.628 64.0928 65.3476 62.8852 66.1791 61.5678C66.1756 61.5644 66.1721 61.561 66.1685 61.5575L95.882 30.8258C98.7075 27.9035 98.6611 23.2113 95.7784 20.3454L83.3251 7.96458C80.4425 5.0987 75.8151 5.14442 72.9897 8.06671Z" fill="#59433A"/><path d="M42.4894 39.7568C40.4231 41.1563 37.7123 51.2246 36.6152 56.0838C38.3518 57.788 43.3351 62.6673 49.3763 68.5511C59.1201 66.2132 64.0929 63.486 65.3614 62.4147C58.3623 55.5701 43.9892 41.4562 42.4894 39.7568Z" fill="#FFCF4F"/></svg>
+
+<!-- icon-shopping（米袋 + 标价牌，AC Nook 杂货店）-->
+<svg viewBox="0 0 71 102" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.35156 37.6318C7.73431 36.0515 10.642 31.3027 11.2109 24.95C11.7798 18.5972 13.7394 14.4805 14.6481 13.2163C15.8525 11.5407 19.9545 6.49634 25.173 5.80196C27.9297 5.43522 34.7153 5.33636 36.9296 10.7419C37.4507 11.7566 38.6388 13.1771 39.2217 10.7419C39.8045 8.30677 41.1465 3.75719 41.7446 1.7868C41.8872 0.650267 42.699 -1.10802 44.8049 0.951045C45.9827 2.21621 46.5858 2.85586 46.7401 3.01754C47.3749 3.68254 47.7481 4.75898 46.0837 5.80196L41.7446 10.3282C41.6745 10.4642 41.6028 10.5951 41.5335 10.7215C40.8661 11.939 40.4245 12.7446 43.8929 13.8254C49.2551 15.4963 49.6473 18.9449 49.4979 25.5929C49.4922 27.7517 48.5101 32.943 44.6272 36.4376C43.9371 37.0587 43.2631 37.6013 42.6144 38.0741C43.2465 37.1271 43.5855 35.8959 43.5855 34.3764C43.5855 30.2947 40.6459 26.818 36.641 26.818C32.6361 26.818 29.7905 29.4779 29.7905 33.5597C29.7905 37.6415 33.1299 40.4599 37.1348 40.4599C37.6446 40.4599 38.1291 40.4275 38.5865 40.3624C37.4973 40.8019 36.6539 40.9844 36.167 41.0122C32.6149 41.2019 24.0809 41.3374 18.3609 40.3618C12.6409 39.5812 7.97135 38.2166 6.35156 37.6318Z" fill="#409B5E"/><path fill-rule="evenodd" clip-rule="evenodd" d="M60.0691 40.8215H67.1206C68.7774 40.8215 70.1206 39.4784 70.1206 37.8215V35.5485C70.1206 33.8917 68.7774 32.5485 67.1206 32.5485H56.7823C56.6085 32.5371 56.4354 32.5373 56.264 32.5485H56.0204C54.9415 32.5485 53.9955 33.1182 53.4669 33.9731C53.1679 34.3324 52.9274 34.7512 52.7651 35.2198L49.1837 45.5611H0V58.4033C0 66.1352 6.26801 72.4033 14 72.4033H36.8272C37.9123 72.4033 38.972 72.2953 39.9964 72.0894L38.9452 75.1249L4.09012 75.1246C2.43326 75.1245 1.09009 76.4677 1.09009 78.1246V80.0307C1.09009 81.6876 2.43324 83.0307 4.09009 83.0307H5.73181C4.69681 84.4841 4.09037 86.2483 4.09037 88.1504C4.09037 93.121 8.23174 97.1504 13.3404 97.1504C18.449 97.1504 22.5904 93.121 22.5904 88.1504C22.5904 86.2483 21.9839 84.4841 20.9489 83.0307H27.7318C26.6968 84.4841 26.0904 86.2483 26.0904 88.1504C26.0904 93.121 30.2317 97.1504 35.3404 97.1504C40.449 97.1504 44.5904 93.121 44.5904 88.1504C44.5904 86.2857 44.0075 84.5535 43.0095 83.1168C44.4915 82.9562 45.8202 81.9654 46.3415 80.46L60.0691 40.8215ZM8.31396 50.0458C8.31396 49.4936 8.76168 49.0458 9.31396 49.0458H11.431C11.9833 49.0458 12.431 49.4936 12.431 50.0458V66.0649C12.431 66.6172 11.9833 67.0649 11.431 67.0649H9.31396C8.76168 67.0649 8.31396 66.6172 8.31396 66.0649V50.0458ZM18.781 49.0458C18.2287 49.0458 17.781 49.4936 17.781 50.0458V66.0649C17.781 66.6172 18.2287 67.0649 18.781 67.0649H20.8981C21.4504 67.0649 21.8981 66.6172 21.8981 66.0649V50.0458C21.8981 49.4936 21.4504 49.0458 20.8981 49.0458H18.781ZM27.2481 50.0458C27.2481 49.4936 27.6958 49.0458 28.2481 49.0458H30.3651C30.9174 49.0458 31.3651 49.4936 31.3651 50.0458V66.0649C31.3651 66.6172 30.9174 67.0649 30.3651 67.0649H28.2481C27.6958 67.0649 27.2481 66.6172 27.2481 66.0649V50.0458ZM37.7151 49.0458C37.1628 49.0458 36.7151 49.4936 36.7151 50.0458V66.0649C36.7151 66.6172 37.1628 67.0649 37.7151 67.0649H39.8322C40.3845 67.0649 40.8322 66.6172 40.8322 66.0649V50.0458C40.8322 49.4936 40.3845 49.0458 39.8322 49.0458H37.7151Z" fill="#4A3D37"/><ellipse cx="12.9968" cy="88.6746" rx="2.99679" ry="2.91579" fill="#F5FCEA"/><ellipse cx="35.49" cy="88.6746" rx="2.91579" ry="2.91579" fill="#F5FCEA"/></svg>
+
+<!-- icon-map（折叠地图 + 大头针）-->
+<svg viewBox="0 0 75 96" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M73.4776 42.6469C74.3136 43.1559 74.8239 44.0639 74.8239 45.0427L74.8238 91.3169C74.8238 93.4535 72.5304 94.8056 70.6609 93.7711L57.1138 86.2752C57.0003 86.2124 56.8922 86.1424 56.79 86.0659C56.6721 86.15 56.5468 86.2257 56.4148 86.2917L38.2551 95.3748C37.2348 95.8851 36.1174 95.7104 35.3137 95.1075L17.4432 85.8943L4.19306 93.4406C2.32316 94.5055 5.73555e-06 93.1551 5.49234e-06 91.0032L0 44.0708C0 43.0455 0.559409 42.1019 1.45893 41.6099L15.2233 34.0814C15.7573 33.5984 16.4698 33.3238 17.2092 33.3496C17.9055 33.3344 18.5765 33.5852 19.0941 34.0247L36.8163 43.2084C36.9627 43.2843 37.1006 43.3721 37.229 43.4702L55.2861 34.1782C55.8761 33.5561 56.7392 33.2153 57.6166 33.3053C58.4756 33.294 59.2896 33.6875 59.8246 34.3346L73.4776 42.6469Z" fill="#F7F3E1"/><path d="M6.52377 82.0731V48.0332L14.8739 42.4786C17.2846 40.5949 18.8918 41.3573 20.3426 42.2992C24.7996 44.5635 34.0799 49.3192 35.5458 50.2277C37.0117 51.1363 38.7848 50.6063 39.4881 50.2277C43.6624 47.9953 52.6388 43.2341 55.1504 42.0491C56.9845 41.0167 58.6538 41.4091 59.4364 42.0491L68.3122 47.8817C68.3025 58.2423 68.2888 79.5382 68.3122 81.8371C68.3355 84.136 66.3569 83.6355 65.3647 83.0979C63.993 82.2183 60.8645 80.1598 59.3237 78.9635C57.8528 77.6733 55.9286 78.4259 55.1504 78.9635C50.6606 81.3572 41.2617 86.3554 39.5842 87.1988C37.9067 88.0422 36.1662 87.5502 35.5056 87.1988L19.857 78.9518C17.6359 77.4557 16.3856 78.4383 15.5177 78.9518C14.6499 79.4653 12.4948 80.8085 10.8174 82.0731C7.10015 84.4843 6.40613 83.0778 6.52377 82.0731Z" fill="#59C9C0"/><path fill-rule="evenodd" clip-rule="evenodd" d="M54.0825 34.8346C57.006 31.1652 58.7544 26.5095 58.7544 21.4436C58.7544 9.60064 49.1992 0 37.4123 0C25.6255 0 16.0703 9.60064 16.0703 21.4436C16.0703 26.5613 17.8546 31.2602 20.8321 34.9467L34.047 57.2165C35.5684 59.7805 39.2797 59.7805 40.8011 57.2165L54.0825 34.8346Z" fill="#4C3C33"/><ellipse cx="37.4124" cy="22.2135" rx="7.25612" ry="7.29066" fill="#F7F2D9"/></svg>
+
+<!-- icon-miles（NookMiles 五角星 + 蓝色行星圆 + 草地装饰）-->
+<svg viewBox="0 0 94 104" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18.5704 51.2672C20.1382 47.5048 23.6707 45.5342 25.4343 45.0117C23.6734 43.9782 19.9354 40.3391 19.6027 32.9953C10.7666 33.4922 5.22798 29.0074 3.5632 26.7029C-2.5944 15.7943 1.2284 11.8209 2.05308 10.3364C2.87776 8.85203 6.20221 6.93342 10.1607 7.31827C14.1191 7.70312 16.5932 10.7269 15.8785 18.6439C15.3067 24.9774 18.123 26.6555 19.6027 26.7029C19.8497 12.3783 38.5262 7.17892 47.8605 6.22668H61.0065C60.9316 6.2097 60.6876 5.45528 60.4309 3.52975C60.1682 1.55967 62.4557 0.355715 63.6323 0H68.3112C70.1828 0 71.2433 1.97008 71.5396 2.95512V7.91826C77.8629 8.68473 84.0869 15.4689 84.3665 20.3155C84.5902 24.1928 87.4859 25.5401 88.9058 25.7291H93.0804C93.7846 37.2469 78.5536 44.5877 77.6498 44.7615C76.9268 44.9005 77.1294 45.4489 77.3211 45.7057C79.28 46.7111 83.2015 49.5912 83.2015 51.3733C82.7428 58.0241 77.2769 58.0624 74.6013 57.2501C71.5912 55.8884 64.625 53.0216 60.8409 52.4483C56.1107 51.7316 46.0054 53.0933 42.852 53.165C40.3293 53.2223 30.7041 56.9351 26.2069 58.7843C24.0484 59.2616 18.5704 55.5783 18.5704 51.2672Z" fill="#4D3E36"/><path fill-rule="evenodd" clip-rule="evenodd" d="M83.6368 17.5752C84.0789 18.2418 85.027 20.004 85.2826 21.7197C85.5381 23.4354 86.4233 24.3206 86.834 24.5488C85.4347 27.7886 81.6503 34.3047 77.7078 34.4507C72.7796 34.6333 71 34.5876 68.9466 31.0284C66.8932 27.4692 67.6234 22.541 70.9088 20.4876C73.8911 18.6237 77.4701 18.2392 82.1689 17.7345C82.6465 17.6832 83.1356 17.6307 83.6368 17.5752ZM78.2167 29.6498C79.8959 29.6498 81.2571 28.2886 81.2571 26.6094C81.2571 24.9303 79.8959 23.569 78.2167 23.569C76.5376 23.569 75.1763 24.9303 75.1763 26.6094C75.1763 28.2886 76.5376 29.6498 78.2167 29.6498Z" fill="#EBCD55"/><path d="M5.08344 18.6624C3.47727 17.6914 1.32688 18.6341 0.452449 19.2268C0.204931 17.7093 -0.207434 14.3276 0.123246 12.9404C0.536596 11.2065 3.1348 7.27628 8.9217 6.9295C13.5512 6.65207 15.5747 10.4359 16.0077 12.3625V18.2C15.4172 18.9899 13.5748 20.5928 10.9294 20.6853C7.6226 20.8009 7.09115 19.8761 5.08344 18.6624Z" fill="#EBCD55"/><circle cx="47.2224" cy="104.709" r="45.8825" fill="#B3BFFF"/></svg>
+
+<!-- icon-diy（DIY 锤子 + 工坊；用作"建造/创造"语义）-->
+<!-- 完整 SVG 见仓库 src/assets/img/icons/icon-diy.svg；2.9 KB，五个 path 元素 -->
+
+<!-- icon-helicopter（直升机；"运输/出岛"语义）-->
+<!-- 完整 SVG 见仓库 src/assets/img/icons/icon-helicopter.svg；4.3 KB -->
+
+<!-- icon-critterpedia（昆虫图鉴；"知识库/百科"语义）-->
+<!-- 完整 SVG 见仓库 src/assets/img/icons/icon-critterpedia.svg；4.4 KB -->
+
+<!-- icon-variant（变体本/物品卡；"清单/收藏"语义）-->
+<svg viewBox="0 0 58 85" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M43.8907 85.0015H5.12987C1.05125 85.0015 0.0105313 83.046 0 82.0683V15.7754C16.9292 15.5687 51.7093 15.1553 55.3968 15.1553C57.2095 15.1553 57.6627 18.9073 57.6627 20.7833V71.7283C57.6627 81.3179 48.4813 84.5728 43.8907 85.0015Z" fill="#F9F6E5"/><path d="M0.00825713 4.36744V81.6563C0.00825713 81.9107 1.72555 79.3995 4.65238 79.419C13.8934 79.4804 34.6044 79.5664 43.52 79.419C52.4355 79.2716 55.72 70.7617 56.2478 66.5252V12.6237C55.7692 3.76914 48.2707 0.518499 44.5813 0H6.47088C1.01456 0 -0.111003 2.91163 0.00825713 4.36744Z" fill="#4C3C33"/><rect x="14.6953" y="52.9385" width="26.8576" height="6.07836" rx="1.77051" fill="#5AA15B"/><rect x="10.4053" y="62.7178" width="36.8525" height="6.31173" rx="2.95084" fill="#5AA15B"/></svg>
+```
+
+> diy / helicopter / critterpedia 三个图标体积偏大（2.9–4.4 KB），如确实要用，直接从仓库 `src/assets/img/icons/<name>.svg` 复制 SVG 整段内容粘贴到 `cnode-icon` 容器即可。视觉风格与上述 7 个统一。
+
+**通用调用模板**：
+
+```html
+<div class="cnode-icon">
+  <svg viewBox="..." fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- AC icon path 内容 -->
+  </svg>
+</div>
+```
 
 ---
 
