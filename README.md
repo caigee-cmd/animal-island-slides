@@ -87,7 +87,11 @@ Speaker notes, embedded images and slide text are all preserved as input — Cla
 
 ## Features / 功能一览
 
-- **16 layouts** — Cover, Card Grid, Bullets, Two Column, Quote + Checklist, Pull Quote, Big Stat Hero, Timeline, Comparison, Stat Strip, Process Flow, Image Hero, Code, NookPhone Showcase, FAQ, Section Divider.
+- **23 layouts** — Cover, Card Grid, Bullets, Two Column, Quote + Checklist, Pull Quote, Big Stat Hero, Timeline, Comparison, Stat Strip, Process Flow, Image Hero, Code, NookPhone Showcase, FAQ, Section Divider, Island Scene, Color Wheel, Dialogue Modal, Icon Constellation, Tabs Switcher, Collapse Stack, Settings Panel.
+- **4 seasonal sub-themes** — Spring Blossom / Summer Coast / Autumn Harvest / Winter Snow. Activated via `data-theme` on `<body>`; each swaps ~15 CSS variables and adds a themed ambient decor layer (petals / waves + gulls / falling leaves / snow). Pure CSS keyframes, respects `prefers-reduced-motion`.
+- **Ambient tools** — composable overlays for any layout: real-time Time HUD (corner clock), AC Game Cursor, and 5 divider pattern variants.
+- **Built-in SVG icon library** — 10 inline icons matching the Animal Crossing UI aesthetic (no external icon font needed).
+- **Scenic utilities** — reusable structural components (`ac-plank` wooden title sign, `ac-prop` scene props, `ac-inv-strip` inventory bar) that enforce scene anchoring across all layouts.
 - **Strict density caps.** Each layout has a maximum content cap; Claude auto-splits a new slide when you exceed it.
 - **Reusable design tokens.** All colors, radii, shadows, and easing curves are CSS custom properties — change one variable, retheme the deck.
 - **`.pptx` import.** `scripts/extract-pptx.py` pulls text, images, and speaker notes from any PowerPoint file.
@@ -139,13 +143,11 @@ The repository follows the [Claude Code plugin layout](https://docs.claude.com/e
 └── LICENSE
 ```
 
-> **Note:** the current working copy still has skill files at the repo root. Before publishing, move them under `skills/animal-island-slides/` so Claude Code's plugin loader can discover them.
-
 ---
 
 ## Roadmap
 
-- [ ] Four seasonal sub-themes (spring blossom / summer coast / autumn harvest / winter snow), sharing tokens but differentiated by palette and decor.
+- [x] Four seasonal sub-themes (spring blossom / summer coast / autumn harvest / winter snow).
 - [ ] Inline edit mode — `contenteditable` + `localStorage` autosave + `Ctrl+S` export.
 - [ ] Presenter view with speaker notes and a timer (press `P` to toggle).
 - [ ] HTML validation script (`scripts/validate.sh`) to enforce the hard rules automatically.
