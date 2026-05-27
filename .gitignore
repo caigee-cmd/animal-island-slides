@@ -15,7 +15,11 @@ _assets/
 # Editor
 .vscode/
 .idea/
+.kiro/
 *.swp
+
+# Playwright MCP cache / logs
+.playwright-mcp/
 
 # Allow plugin-internal docs and templates (override above if matched)
 !skills/**/*.md

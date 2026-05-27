@@ -43,6 +43,21 @@
 
 ---
 
+## 风格语法（必须遵循）
+
+下面这些不是"可选审美建议"，而是这套模板是否真的像一份 AC 主题 deck 的分界线：
+
+- **不要只用动森配色。** 仅有绿色、米色、圆角卡片，不足以构成 AC PPT 风格。
+- **每张 slide 至少有一个场景锚点。** 从 `木牌 / 纸板 / 房屋 / 栅栏 / 邮筒 / 树 / 物品栏 / 角色插画` 中至少取一个。
+- **标题优先落在具象容器里。** 封面、章节、结尾页优先用木牌；内容页优先用纸张面板，不要让大标题直接飘在空背景上。
+- **内容页不是纯卡片墙。** 卡片要嵌在一块更大的"纸面 / 告示板 / 展示板"里，而不是直接浮在留白上。
+- **一份 deck 内至少 3 页出现具象道具。** 封面 1 页、章节/目录 1 页、内容页或结尾 1 页，是最低要求。
+- **道具要服务版式，而不是装饰角落。** 优先把道具作为视觉骨架的一部分，而不是最后随手贴贴纸。
+
+如果一页只剩下"圆角卡片 + 动森色 + 图标"，默认视为风格不够明显，需要继续增强。
+
+---
+
 ## BASE — 每份输出都必须包含的完整基础代码
 
 ```html
@@ -241,10 +256,41 @@ document.addEventListener('touchend',   e => { const dx = e.changedTouches[0].cl
 
 ---
 
+## Scenic Utilities（跨布局复用）
+
+以下 3 组组件建议视为基础语法，而不是某个 layout 的私货。封面、章节页、目录页、结束页优先复用它们：
+
+### 1. Wooden Plank（木牌标题容器）
+
+- 适合：Cover / Section Divider / 结尾页 / 目录页标题
+- 作用：把标题从"网页文字"变成"岛上告示牌"
+- 做法：标题、副标题放入 `.ac-plank`，而不是直接裸排
+
+### 2. Scenic Props（场景道具）
+
+- 适合：封面角落、章节页底部、内容页侧边
+- 推荐优先级：`房屋 / 栅栏 / 邮筒 / 路灯 / 树`
+- 原则：道具要围绕内容形成构图，不要随机分散
+
+### 3. Inventory Strip（底部物品栏）
+
+- 适合：封面、目录、结束页
+- 作用：补足"游戏 UI"层，不让页面只剩插画背景
+- 注意：只在 1-3 个关键页使用，避免页页重复
+
+如果需要强风格封面，优先顺序是：
+
+1. `ac-plank` 承载标题
+2. 两侧 `ac-prop` 建立场景
+3. 底部 `ac-inv-strip` 收尾
+
+---
+
 ## LAYOUT A — Cover（封面 / Island Welcome）
 
 **使用场景**：演示文稿第一张，或各章节的大标题页。  
 **背景**：岛屿绿 `--bg-green`，底部椭圆波浪露出羊皮纸色。
+**强风格要求**：标题优先放进木牌，至少搭配 2 个场景道具；不要只做"绿底 + 大字 + 按钮"。
 
 ### CSS（追加到 `<style>` 末尾）
 
@@ -327,15 +373,27 @@ document.addEventListener('touchend',   e => { const dx = e.changedTouches[0].cl
   <svg class="leaf leaf-3" viewBox="0 0 100 70" fill="none"><path d="M8 60 Q20 8 95 5 Q65 55 8 60Z" fill="#fff"/></svg>
   <svg class="leaf leaf-4" viewBox="0 0 100 70" fill="none"><path d="M8 60 Q20 8 95 5 Q65 55 8 60Z" fill="#fff"/></svg>
 
-  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;">
+  <!-- 推荐：至少放两枚场景道具 -->
+  <!-- 左下：邮筒 / 右下：小屋 / 栅栏 / 路灯，按内容选 -->
+
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:clamp(16px,3vh,24px);">
     <div class="cover-badge"><!-- 副标签文字，如"第一章" / 项目名 --></div>
-    <h1 class="cover-title"><!-- 主标题，<em> 包裹高亮词 --></h1>
-    <p class="cover-subtitle"><!-- 副标题或 tagline --></p>
+
+    <!-- 推荐：标题放进木牌，而不是裸标题 -->
+    <div class="ac-plank">
+      <svg class="ac-plank-leaf" viewBox="0 0 60 60" fill="none"><!-- leaf --></svg>
+      <h1 class="cover-title"><!-- 主标题，<em> 包裹高亮词 --></h1>
+      <p class="cover-subtitle"><!-- 副标题或 tagline --></p>
+    </div>
+
     <button class="cover-btn" onclick="next()">
       <!-- 按钮文字，如"开始" / "下一节" -->
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
   </div>
+
+  <!-- 可选：封面/目录/结束页追加 inventory strip -->
+  <!-- <div class="ac-inv-strip floating">...</div> -->
 </section>
 ```
 
@@ -345,6 +403,7 @@ document.addEventListener('touchend',   e => { const dx = e.changedTouches[0].cl
 
 **使用场景**：功能列表、对比项目、团队成员、产品特性。最多 6 张卡片。  
 **背景**：羊皮纸 `--bg-parchment`。
+**强风格要求**：卡片不要直接浮在空背景上，优先整体放进一张大纸面 / 展示板里；建议至少一侧搭配 `房屋 / 栅栏 / 邮筒` 之一做场景锚点。
 
 ### CSS
 
@@ -563,6 +622,7 @@ document.addEventListener('touchend',   e => { const dx = e.changedTouches[0].cl
 
 **使用场景**：纯文字内容、背景介绍、步骤说明。最多 5 条要点。  
 **背景**：羊皮纸 `--bg-parchment`，左侧 teal 竖条装饰。
+**强风格要求**：列表本体应放在纸张面板里，不要只做一列裸条目；右下角或侧边建议加 1 个小屋/围栏类道具，避免页面退回文档感。
 
 ### CSS
 
@@ -648,6 +708,7 @@ document.addEventListener('touchend',   e => { const dx = e.changedTouches[0].cl
 
 **使用场景**：左文右图、左数据右说明、Before/After 对比。  
 **背景**：可用 `--bg-parchment` 或 `--bg-card`。
+**强风格要求**：左右两栏优先被同一张"纸板"包住；右侧视觉区不要只是抽象数据框，优先做成贴纸感示意卡、便签页或带道具的小场景。
 
 ### CSS
 
@@ -746,6 +807,7 @@ document.addEventListener('touchend',   e => { const dx = e.changedTouches[0].cl
 
 **使用场景**：多章节演示中的章节过渡页，比 Cover 更轻量。  
 **背景**：薄荷绿渐变，中央章节号 + 标题。
+**强风格要求**：优先做成"吊挂木牌"或"告示牌"，而不是纯大字号章节页。
 
 ### CSS
 
@@ -792,9 +854,13 @@ document.addEventListener('touchend',   e => { const dx = e.changedTouches[0].cl
 <!-- data-chapter 的值会渲染为右下角大号装饰数字 -->
 <section class="slide slide-divider" data-slide="N" data-chapter="02">
   <div class="divider-inner">
-    <div class="divider-num">Chapter 02</div>
-    <h2 class="divider-title"><!-- 章节标题 --></h2>
-    <p class="divider-desc"><!-- 一句话简介，可省略 --></p>
+    <!-- 推荐：把章节信息包进木牌或吊牌里 -->
+    <div class="ac-plank hanger">
+      <svg class="ac-plank-leaf" viewBox="0 0 60 60" fill="none"><!-- leaf --></svg>
+      <div class="divider-num">Chapter 02</div>
+      <h2 class="divider-title"><!-- 章节标题 --></h2>
+      <p class="divider-desc"><!-- 一句话简介，可省略 --></p>
+    </div>
   </div>
 </section>
 ```
@@ -1892,6 +1958,7 @@ document.addEventListener('touchend',   e => { const dx = e.changedTouches[0].cl
 
 **使用场景**：产品 FAQ、技术分享的常见问题、复盘的"为什么这么做"。3-4 组问答纵向堆叠。
 **背景**：羊皮纸 `--bg-parchment`。
+**强风格要求**：Q/A 要像留言板或公告板上的上下两层纸条，而不是普通 FAQ 列表；建议在页面底边补 `栅栏 / 小屋 / 邮筒` 中的至少一个。
 
 ### CSS
 
